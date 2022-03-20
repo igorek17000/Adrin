@@ -120,5 +120,12 @@
   "homepage": "https://totemfi.com/",
   "optionalDependencies": {
     "fsevents": "^2.3.2"
+  },
+  "nyc": {
+    "exclude": [
+      "spec/**/*.spec.ts",
+      "typings",
+      "node_modules"
+    ]
   }
 }
