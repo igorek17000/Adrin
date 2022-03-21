@@ -1,7 +1,7 @@
 {
-  "name": "atlantis_internet_city_payment_token",
+  "name": "atlantis_internet_city_token_distribution",
   "version": "1.0.0",
-  "description": "Atlantis internet city payment token smart contracts",
+  "description": "Atlantis internet city token distribution smart contracts",
   "directories": {
     "test": "test"
   },

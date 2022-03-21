@@ -3,7 +3,7 @@
   "log": [
     {
       "Ownable": {
-        "src": "@openzeppelin/contracts/access/Ownable.sol:20",
+        "src": "@openzeppelin/contracts/access/Ownable.sol:19",
         "inherit": [
           "Context"
         ],
@@ -18,34 +18,174 @@
           {
             "kind": "constructor",
             "contract": "Ownable",
-            "src": "@openzeppelin/contracts/access/Ownable.sol:28"
+            "src": "@openzeppelin/contracts/access/Ownable.sol:27"
           }
         ],
         "layout": {
           "storage": [
             {
-              "label": "_owner",
-              "offset": 0,
-              "slot": "0",
-              "type": "t_address",
               "contract": "Ownable",
-              "src": "@openzeppelin/contracts/access/Ownable.sol:21"
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts/access/Ownable.sol:20"
             }
           ],
           "types": {
             "t_address": {
-              "label": "address",
-              "numberOfBytes": "20"
+              "label": "address"
             }
           },
-          "layoutVersion": "1.1",
-          "flat": true
+          "layoutVersion": "1.1"
+        }
+      },
+      "IERC20": {
+        "src": "@openzeppelin/contracts/token/ERC20/IERC20.sol:8",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "totalSupply()",
+          "balanceOf(address)",
+          "transfer(address,uint256)",
+          "allowance(address,address)",
+          "approve(address,uint256)",
+          "transferFrom(address,address,uint256)"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.1"
+        }
+      },
+      "Context": {
+        "src": "@openzeppelin/contracts/utils/Context.sol:15",
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.1"
+        }
+      },
+      "SafeMath": {
+        "src": "@openzeppelin/contracts/utils/math/SafeMath.sol:15",
+        "version": {
+          "withMetadata": "71e63e105c5bc112c1cc7a11509b95c456729ce319b4ba8ed47b89368639d892",
+          "withoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db",
+          "linkedWithoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db"
+        },
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.1"
+        }
+      },
+      "AtlantisDistribution": {
+        "src": "contracts/Distribution/AtlantisDistribution.sol:9",
+        "version": {
+          "withMetadata": "c34168994112c85583a68f48300983437057d39aa302999681b9127082e9dbc1",
+          "withoutMetadata": "0967bf1d987b9c2b3d11fb3469844261b77619c985b22382e21d0d98b59150ba",
+          "linkedWithoutMetadata": "0967bf1d987b9c2b3d11fb3469844261b77619c985b22382e21d0d98b59150ba"
+        },
+        "inherit": [
+          "Ownable",
+          "ERC20",
+          "IERC20",
+          "Context"
+        ],
+        "libraries": [
+          "SafeMath"
+        ],
+        "methods": [
+          "(string,string,address payable)",
+          "balanceOf(address)",
+          "mint(uint256)",
+          "transfer(address,uint256)",
+          "changeLvl(address,uint8)",
+          "mintToNRS(address,uint256)",
+          "mintToRS(address,uint256)",
+          "transferFrom(address,address,uint256)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "AtlantisDistribution",
+            "src": "contracts/Distribution/AtlantisDistribution.sol:28"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "contract": "AtlantisDistribution",
+              "label": "balanceCoefficient",
+              "type": "t_mapping(t_address,t_uint256)",
+              "src": "contracts/Distribution/AtlantisDistribution.sol:17"
+            },
+            {
+              "contract": "AtlantisDistribution",
+              "label": "level",
+              "type": "t_mapping(t_address,t_uint8)",
+              "src": "contracts/Distribution/AtlantisDistribution.sol:19"
+            },
+            {
+              "contract": "AtlantisDistribution",
+              "label": "currentBC",
+              "type": "t_array(t_uint256)3_storage",
+              "src": "contracts/Distribution/AtlantisDistribution.sol:22"
+            },
+            {
+              "contract": "AtlantisDistribution",
+              "label": "totalLevelSupply",
+              "type": "t_array(t_uint256)3_storage",
+              "src": "contracts/Distribution/AtlantisDistribution.sol:24"
+            },
+            {
+              "contract": "AtlantisDistribution",
+              "label": "fund_wallet",
+              "type": "t_address_payable",
+              "src": "contracts/Distribution/AtlantisDistribution.sol:26"
+            }
+          ],
+          "types": {
+            "t_mapping(t_address,t_uint256)": {
+              "label": "mapping(address => uint256)"
+            },
+            "t_address": {
+              "label": "address"
+            },
+            "t_uint256": {
+              "label": "uint256"
+            },
+            "t_mapping(t_address,t_uint8)": {
+              "label": "mapping(address => uint8)"
+            },
+            "t_uint8": {
+              "label": "uint8"
+            },
+            "t_array(t_uint256)3_storage": {
+              "label": "uint256[3]"
+            },
+            "t_address_payable": {
+              "label": "address payable"
+            }
+          },
+          "layoutVersion": "1.1"
         }
       },
       "ERC20": {
         "src": "contracts/Distribution/WrappedERC20Token.sol:32",
         "version": {
-          "withMetadata": "74a8aa8a364a3e9efa0cdd6d7bc6c6baa4538690d49bcff8b760b2b8afc3e62f",
+          "withMetadata": "c2bc51fb1384475d0bdc700d6cbb1ef0ee9e2de17f171dcc3a295ac6e7254b59",
           "withoutMetadata": "c13972cf16f63fa8ca0170d925a4b581981f7bf6f86f1cbcb2ee97d20e24d203",
           "linkedWithoutMetadata": "c13972cf16f63fa8ca0170d925a4b581981f7bf6f86f1cbcb2ee97d20e24d203"
         },
@@ -79,74 +219,183 @@
         "layout": {
           "storage": [
             {
-              "label": "_balances",
-              "offset": 0,
-              "slot": "0",
-              "type": "t_mapping(t_address,t_uint256)",
               "contract": "ERC20",
+              "label": "_balances",
+              "type": "t_mapping(t_address,t_uint256)",
               "src": "contracts/Distribution/WrappedERC20Token.sol:33"
             },
             {
-              "label": "_allowances",
-              "offset": 0,
-              "slot": "1",
-              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
               "contract": "ERC20",
+              "label": "_allowances",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
               "src": "contracts/Distribution/WrappedERC20Token.sol:35"
             },
             {
-              "label": "_totalSupply",
-              "offset": 0,
-              "slot": "2",
-              "type": "t_uint256",
               "contract": "ERC20",
+              "label": "_totalSupply",
+              "type": "t_uint256",
               "src": "contracts/Distribution/WrappedERC20Token.sol:37"
             },
             {
-              "label": "_name",
-              "offset": 0,
-              "slot": "3",
-              "type": "t_string_storage",
               "contract": "ERC20",
+              "label": "_name",
+              "type": "t_string_storage",
               "src": "contracts/Distribution/WrappedERC20Token.sol:39"
             },
             {
-              "label": "_symbol",
-              "offset": 0,
-              "slot": "4",
-              "type": "t_string_storage",
               "contract": "ERC20",
+              "label": "_symbol",
+              "type": "t_string_storage",
               "src": "contracts/Distribution/WrappedERC20Token.sol:40"
             }
           ],
           "types": {
-            "t_address": {
-              "label": "address",
-              "numberOfBytes": "20"
-            },
-            "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
-              "label": "mapping(address => mapping(address => uint256))",
-              "numberOfBytes": "32"
-            },
             "t_mapping(t_address,t_uint256)": {
-              "label": "mapping(address => uint256)",
-              "numberOfBytes": "32"
+              "label": "mapping(address => uint256)"
             },
-            "t_string_storage": {
-              "label": "string",
-              "numberOfBytes": "32"
+            "t_address": {
+              "label": "address"
             },
             "t_uint256": {
-              "label": "uint256",
-              "numberOfBytes": "32"
+              "label": "uint256"
+            },
+            "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+              "label": "mapping(address => mapping(address => uint256))"
+            },
+            "t_string_storage": {
+              "label": "string"
             }
           },
-          "layoutVersion": "1.1",
-          "flat": true
+          "layoutVersion": "1.1"
+        }
+      }
+    },
+    {
+      "Ownable": {
+        "src": "@openzeppelin/contracts/access/Ownable.sol:19",
+        "inherit": [
+          "Context"
+        ],
+        "libraries": [],
+        "methods": [
+          "owner()",
+          "renounceOwnership()",
+          "transferOwnership(address)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "Ownable",
+            "src": "@openzeppelin/contracts/access/Ownable.sol:27"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "contract": "Ownable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts/access/Ownable.sol:20"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address"
+            }
+          },
+          "layoutVersion": "1.1"
+        }
+      },
+      "ERC20": {
+        "src": "contracts/Distribution/WrappedERC20Token.sol:32",
+        "version": {
+          "withMetadata": "c2bc51fb1384475d0bdc700d6cbb1ef0ee9e2de17f171dcc3a295ac6e7254b59",
+          "withoutMetadata": "c13972cf16f63fa8ca0170d925a4b581981f7bf6f86f1cbcb2ee97d20e24d203",
+          "linkedWithoutMetadata": "c13972cf16f63fa8ca0170d925a4b581981f7bf6f86f1cbcb2ee97d20e24d203"
+        },
+        "inherit": [
+          "IERC20",
+          "Context"
+        ],
+        "libraries": [],
+        "methods": [
+          "(string,string)",
+          "name()",
+          "symbol()",
+          "decimals()",
+          "totalSupply()",
+          "balanceOf(address)",
+          "transfer(address,uint256)",
+          "allowance(address,address)",
+          "approve(address,uint256)",
+          "transferFrom(address,address,uint256)",
+          "increaseAllowance(address,uint256)",
+          "decreaseAllowance(address,uint256)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "ERC20",
+            "src": "contracts/Distribution/WrappedERC20Token.sol:51"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "contract": "ERC20",
+              "label": "_balances",
+              "type": "t_mapping(t_address,t_uint256)",
+              "src": "contracts/Distribution/WrappedERC20Token.sol:33"
+            },
+            {
+              "contract": "ERC20",
+              "label": "_allowances",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+              "src": "contracts/Distribution/WrappedERC20Token.sol:35"
+            },
+            {
+              "contract": "ERC20",
+              "label": "_totalSupply",
+              "type": "t_uint256",
+              "src": "contracts/Distribution/WrappedERC20Token.sol:37"
+            },
+            {
+              "contract": "ERC20",
+              "label": "_name",
+              "type": "t_string_storage",
+              "src": "contracts/Distribution/WrappedERC20Token.sol:39"
+            },
+            {
+              "contract": "ERC20",
+              "label": "_symbol",
+              "type": "t_string_storage",
+              "src": "contracts/Distribution/WrappedERC20Token.sol:40"
+            }
+          ],
+          "types": {
+            "t_mapping(t_address,t_uint256)": {
+              "label": "mapping(address => uint256)"
+            },
+            "t_address": {
+              "label": "address"
+            },
+            "t_uint256": {
+              "label": "uint256"
+            },
+            "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+              "label": "mapping(address => mapping(address => uint256))"
+            },
+            "t_string_storage": {
+              "label": "string"
+            }
+          },
+          "layoutVersion": "1.1"
         }
       },
       "IERC20": {
-        "src": "@openzeppelin/contracts/token/ERC20/IERC20.sol:9",
+        "src": "@openzeppelin/contracts/token/ERC20/IERC20.sol:8",
         "inherit": [],
         "libraries": [],
         "methods": [
@@ -162,12 +411,11 @@
         "layout": {
           "storage": [],
           "types": {},
-          "layoutVersion": "1.1",
-          "flat": false
+          "layoutVersion": "1.1"
         }
       },
       "IERC20Metadata": {
-        "src": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol:13",
+        "src": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol:12",
         "inherit": [
           "IERC20"
         ],
@@ -182,12 +430,11 @@
         "layout": {
           "storage": [],
           "types": {},
-          "layoutVersion": "1.1",
-          "flat": false
+          "layoutVersion": "1.1"
         }
       },
       "Context": {
-        "src": "@openzeppelin/contracts/utils/Context.sol:16",
+        "src": "@openzeppelin/contracts/utils/Context.sol:15",
         "inherit": [],
         "libraries": [],
         "methods": [],
@@ -196,14 +443,13 @@
         "layout": {
           "storage": [],
           "types": {},
-          "layoutVersion": "1.1",
-          "flat": false
+          "layoutVersion": "1.1"
         }
       },
       "SafeMath": {
-        "src": "@openzeppelin/contracts/utils/math/SafeMath.sol:16",
+        "src": "@openzeppelin/contracts/utils/math/SafeMath.sol:15",
         "version": {
-          "withMetadata": "59c6bae46a7972049c24175ae68172bb53d88b10e90b0b0998f5213e60653a36",
+          "withMetadata": "71e63e105c5bc112c1cc7a11509b95c456729ce319b4ba8ed47b89368639d892",
           "withoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db",
           "linkedWithoutMetadata": "a64c6cf9c6ba9368f5132c93a0196b3204a7963dbb4dd05dfddb4ab23126b8db"
         },
@@ -215,16 +461,15 @@
         "layout": {
           "storage": [],
           "types": {},
-          "layoutVersion": "1.1",
-          "flat": false
+          "layoutVersion": "1.1"
         }
       },
       "AtlantisDistribution": {
         "src": "contracts/Distribution/AtlantisDistribution.sol:9",
         "version": {
-          "withMetadata": "2988f3f126be2622a835fee4b6a0ee17c4a3cba36999d871f242981aff31d8cb",
-          "withoutMetadata": "9a4e8b24e20e8b5d363caf705b6e1905e7dacb8a6d5e4d7c37bd16d8014e5bf4",
-          "linkedWithoutMetadata": "9a4e8b24e20e8b5d363caf705b6e1905e7dacb8a6d5e4d7c37bd16d8014e5bf4"
+          "withMetadata": "c34168994112c85583a68f48300983437057d39aa302999681b9127082e9dbc1",
+          "withoutMetadata": "0967bf1d987b9c2b3d11fb3469844261b77619c985b22382e21d0d98b59150ba",
+          "linkedWithoutMetadata": "0967bf1d987b9c2b3d11fb3469844261b77619c985b22382e21d0d98b59150ba"
         },
         "inherit": [
           "Ownable",
@@ -238,7 +483,6 @@
         "methods": [
           "(string,string,address payable)",
           "balanceOf(address)",
-          "relaxBalance(address)",
           "mint(uint256)",
           "transfer(address,uint256)",
           "changeLvl(address,uint8)",
@@ -251,171 +495,74 @@
           {
             "kind": "constructor",
             "contract": "AtlantisDistribution",
-            "src": "contracts/Distribution/AtlantisDistribution.sol:19"
-          },
-          {
-            "kind": "state-variable-assignment",
-            "name": "size",
-            "src": "contracts/Distribution/AtlantisDistribution.sol:14"
-          },
-          {
-            "kind": "state-variable-assignment",
-            "name": "cury",
-            "src": "contracts/Distribution/AtlantisDistribution.sol:15"
-          },
-          {
-            "kind": "state-variable-assignment",
-            "name": "total",
-            "src": "contracts/Distribution/AtlantisDistribution.sol:16"
+            "src": "contracts/Distribution/AtlantisDistribution.sol:28"
           }
         ],
         "layout": {
           "storage": [
             {
-              "label": "_balances",
-              "offset": 0,
-              "slot": "0",
+              "contract": "AtlantisDistribution",
+              "label": "balanceCoefficient",
               "type": "t_mapping(t_address,t_uint256)",
-              "contract": "ERC20",
-              "src": "contracts/Distribution/WrappedERC20Token.sol:33"
-            },
-            {
-              "label": "_allowances",
-              "offset": 0,
-              "slot": "1",
-              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
-              "contract": "ERC20",
-              "src": "contracts/Distribution/WrappedERC20Token.sol:35"
-            },
-            {
-              "label": "_totalSupply",
-              "offset": 0,
-              "slot": "2",
-              "type": "t_uint256",
-              "contract": "ERC20",
-              "src": "contracts/Distribution/WrappedERC20Token.sol:37"
-            },
-            {
-              "label": "_name",
-              "offset": 0,
-              "slot": "3",
-              "type": "t_string_storage",
-              "contract": "ERC20",
-              "src": "contracts/Distribution/WrappedERC20Token.sol:39"
-            },
-            {
-              "label": "_symbol",
-              "offset": 0,
-              "slot": "4",
-              "type": "t_string_storage",
-              "contract": "ERC20",
-              "src": "contracts/Distribution/WrappedERC20Token.sol:40"
-            },
-            {
-              "label": "_owner",
-              "offset": 0,
-              "slot": "5",
-              "type": "t_address",
-              "contract": "Ownable",
-              "src": "@openzeppelin/contracts/access/Ownable.sol:21"
-            },
-            {
-              "label": "y",
-              "offset": 0,
-              "slot": "6",
-              "type": "t_mapping(t_address,t_uint256)",
-              "contract": "AtlantisDistribution",
-              "src": "contracts/Distribution/AtlantisDistribution.sol:12"
-            },
-            {
-              "label": "lvl",
-              "offset": 0,
-              "slot": "7",
-              "type": "t_mapping(t_address,t_uint8)",
-              "contract": "AtlantisDistribution",
-              "src": "contracts/Distribution/AtlantisDistribution.sol:13"
-            },
-            {
-              "label": "size",
-              "offset": 0,
-              "slot": "8",
-              "type": "t_uint256",
-              "contract": "AtlantisDistribution",
-              "src": "contracts/Distribution/AtlantisDistribution.sol:14"
-            },
-            {
-              "label": "cury",
-              "offset": 0,
-              "slot": "9",
-              "type": "t_array(t_uint256)dyn_storage",
-              "contract": "AtlantisDistribution",
-              "src": "contracts/Distribution/AtlantisDistribution.sol:15"
-            },
-            {
-              "label": "total",
-              "offset": 0,
-              "slot": "10",
-              "type": "t_array(t_uint256)dyn_storage",
-              "contract": "AtlantisDistribution",
-              "src": "contracts/Distribution/AtlantisDistribution.sol:16"
-            },
-            {
-              "label": "fund_wallet",
-              "offset": 0,
-              "slot": "11",
-              "type": "t_address_payable",
-              "contract": "AtlantisDistribution",
               "src": "contracts/Distribution/AtlantisDistribution.sol:17"
+            },
+            {
+              "contract": "AtlantisDistribution",
+              "label": "level",
+              "type": "t_mapping(t_address,t_uint8)",
+              "src": "contracts/Distribution/AtlantisDistribution.sol:19"
+            },
+            {
+              "contract": "AtlantisDistribution",
+              "label": "currentBC",
+              "type": "t_array(t_uint256)3_storage",
+              "src": "contracts/Distribution/AtlantisDistribution.sol:22"
+            },
+            {
+              "contract": "AtlantisDistribution",
+              "label": "totalLevelSupply",
+              "type": "t_array(t_uint256)3_storage",
+              "src": "contracts/Distribution/AtlantisDistribution.sol:24"
+            },
+            {
+              "contract": "AtlantisDistribution",
+              "label": "fund_wallet",
+              "type": "t_address_payable",
+              "src": "contracts/Distribution/AtlantisDistribution.sol:26"
             }
           ],
           "types": {
-            "t_address": {
-              "label": "address",
-              "numberOfBytes": "20"
-            },
-            "t_address_payable": {
-              "label": "address payable",
-              "numberOfBytes": "20"
-            },
-            "t_array(t_uint256)dyn_storage": {
-              "label": "uint256[]",
-              "numberOfBytes": "32"
-            },
-            "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
-              "label": "mapping(address => mapping(address => uint256))",
-              "numberOfBytes": "32"
-            },
             "t_mapping(t_address,t_uint256)": {
-              "label": "mapping(address => uint256)",
-              "numberOfBytes": "32"
+              "label": "mapping(address => uint256)"
             },
-            "t_mapping(t_address,t_uint8)": {
-              "label": "mapping(address => uint8)",
-              "numberOfBytes": "32"
-            },
-            "t_string_storage": {
-              "label": "string",
-              "numberOfBytes": "32"
+            "t_address": {
+              "label": "address"
             },
             "t_uint256": {
-              "label": "uint256",
-              "numberOfBytes": "32"
+              "label": "uint256"
+            },
+            "t_mapping(t_address,t_uint8)": {
+              "label": "mapping(address => uint8)"
             },
             "t_uint8": {
-              "label": "uint8",
-              "numberOfBytes": "1"
+              "label": "uint8"
+            },
+            "t_array(t_uint256)3_storage": {
+              "label": "uint256[3]"
+            },
+            "t_address_payable": {
+              "label": "address payable"
             }
           },
-          "layoutVersion": "1.1",
-          "flat": true
+          "layoutVersion": "1.1"
         }
       },
       "WrappedERC20Token2": {
         "src": "contracts/Distribution/WrappedERC20Token2.sol:9",
         "version": {
-          "withMetadata": "2a5ac72cb3cce4ef0067327b1f9fbb8a25ca4221100b9b289ed97f1c4e0ea67e",
-          "withoutMetadata": "186ad669f4bc3669a1a3d143b746a9844cea0cd7ba052418bc9ed71eeb6270d7",
-          "linkedWithoutMetadata": "186ad669f4bc3669a1a3d143b746a9844cea0cd7ba052418bc9ed71eeb6270d7"
+          "withMetadata": "8e3c5a9dfda85b0fc7b249d680bfe8042d1238fd4fdd3033daaa37bd4c683c1f",
+          "withoutMetadata": "91061b5502311ef35b13663a4cb1e3599a7545e6ff880f6deeb49360b76681be",
+          "linkedWithoutMetadata": "91061b5502311ef35b13663a4cb1e3599a7545e6ff880f6deeb49360b76681be"
         },
         "inherit": [
           "Ownable",
@@ -439,86 +586,15 @@
           }
         ],
         "layout": {
-          "storage": [
-            {
-              "label": "_balances",
-              "offset": 0,
-              "slot": "0",
-              "type": "t_mapping(t_address,t_uint256)",
-              "contract": "ERC20",
-              "src": "@openzeppelin/contracts/token/ERC20/ERC20.sol:36"
-            },
-            {
-              "label": "_allowances",
-              "offset": 0,
-              "slot": "1",
-              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
-              "contract": "ERC20",
-              "src": "@openzeppelin/contracts/token/ERC20/ERC20.sol:38"
-            },
-            {
-              "label": "_totalSupply",
-              "offset": 0,
-              "slot": "2",
-              "type": "t_uint256",
-              "contract": "ERC20",
-              "src": "@openzeppelin/contracts/token/ERC20/ERC20.sol:40"
-            },
-            {
-              "label": "_name",
-              "offset": 0,
-              "slot": "3",
-              "type": "t_string_storage",
-              "contract": "ERC20",
-              "src": "@openzeppelin/contracts/token/ERC20/ERC20.sol:42"
-            },
-            {
-              "label": "_symbol",
-              "offset": 0,
-              "slot": "4",
-              "type": "t_string_storage",
-              "contract": "ERC20",
-              "src": "@openzeppelin/contracts/token/ERC20/ERC20.sol:43"
-            },
-            {
-              "label": "_owner",
-              "offset": 0,
-              "slot": "5",
-              "type": "t_address",
-              "contract": "Ownable",
-              "src": "@openzeppelin/contracts/access/Ownable.sol:21"
-            }
-          ],
-          "types": {
-            "t_address": {
-              "label": "address",
-              "numberOfBytes": "20"
-            },
-            "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
-              "label": "mapping(address => mapping(address => uint256))",
-              "numberOfBytes": "32"
-            },
-            "t_mapping(t_address,t_uint256)": {
-              "label": "mapping(address => uint256)",
-              "numberOfBytes": "32"
-            },
-            "t_string_storage": {
-              "label": "string",
-              "numberOfBytes": "32"
-            },
-            "t_uint256": {
-              "label": "uint256",
-              "numberOfBytes": "32"
-            }
-          },
-          "layoutVersion": "1.1",
-          "flat": true
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.1"
         }
       },
       "Operator": {
         "src": "contracts/Role/Operator.sol:8",
         "version": {
-          "withMetadata": "87c65330bd14237500fbb02bc21fa429a22c3f916c5f8043b870758c65dc6242",
+          "withMetadata": "0883e1760e014c0d8b5c2c4f48d1fc46e45094217e42f0d2cc825a9b4d3979cf",
           "withoutMetadata": "57a2a3ce08217253517e23cd930cf69ebac746612f19765439da14601e072bcb",
           "linkedWithoutMetadata": "57a2a3ce08217253517e23cd930cf69ebac746612f19765439da14601e072bcb"
         },
@@ -545,48 +621,39 @@
         "layout": {
           "storage": [
             {
-              "label": "_operators",
-              "offset": 0,
-              "slot": "0",
-              "type": "t_struct(Role)2573_storage",
               "contract": "Operator",
+              "label": "_operators",
+              "type": "t_struct(Role)2642_storage",
               "src": "contracts/Role/Operator.sol:14"
             }
           ],
           "types": {
-            "t_address": {
-              "label": "address",
-              "numberOfBytes": "20"
-            },
-            "t_bool": {
-              "label": "bool",
-              "numberOfBytes": "1"
-            },
-            "t_mapping(t_address,t_bool)": {
-              "label": "mapping(address => bool)",
-              "numberOfBytes": "32"
-            },
-            "t_struct(Role)2573_storage": {
+            "t_struct(Role)2642_storage": {
               "label": "struct Roles.Role",
               "members": [
                 {
                   "label": "bearer",
-                  "type": "t_mapping(t_address,t_bool)",
-                  "offset": 0,
-                  "slot": "0"
+                  "type": "t_mapping(t_address,t_bool)"
                 }
-              ],
-              "numberOfBytes": "32"
+              ]
+            },
+            "t_mapping(t_address,t_bool)": {
+              "label": "mapping(address => bool)"
+            },
+            "t_address": {
+              "label": "address"
+            },
+            "t_bool": {
+              "label": "bool"
             }
           },
-          "layoutVersion": "1.1",
-          "flat": true
+          "layoutVersion": "1.1"
         }
       },
       "PoolCreator": {
         "src": "contracts/Role/PoolCreator.sol:7",
         "version": {
-          "withMetadata": "8dbdc02da0c84819cfa6171bbe0ce6acbdee506eab1315ccb804c2d87a5f5ed9",
+          "withMetadata": "dedacf12114da386b945b71c7b42bb19881d8cf2986b0abeaa222423ebed0dde",
           "withoutMetadata": "4f93000410dfb81dcab2a619b6b8c4137333f327ba1d82231a062e2922f700b8",
           "linkedWithoutMetadata": "4f93000410dfb81dcab2a619b6b8c4137333f327ba1d82231a062e2922f700b8"
         },
@@ -613,48 +680,39 @@
         "layout": {
           "storage": [
             {
-              "label": "_poolCreators",
-              "offset": 0,
-              "slot": "0",
-              "type": "t_struct(Role)2573_storage",
               "contract": "PoolCreator",
+              "label": "_poolCreators",
+              "type": "t_struct(Role)2642_storage",
               "src": "contracts/Role/PoolCreator.sol:13"
             }
           ],
           "types": {
-            "t_address": {
-              "label": "address",
-              "numberOfBytes": "20"
-            },
-            "t_bool": {
-              "label": "bool",
-              "numberOfBytes": "1"
-            },
-            "t_mapping(t_address,t_bool)": {
-              "label": "mapping(address => bool)",
-              "numberOfBytes": "32"
-            },
-            "t_struct(Role)2573_storage": {
+            "t_struct(Role)2642_storage": {
               "label": "struct Roles.Role",
               "members": [
                 {
                   "label": "bearer",
-                  "type": "t_mapping(t_address,t_bool)",
-                  "offset": 0,
-                  "slot": "0"
+                  "type": "t_mapping(t_address,t_bool)"
                 }
-              ],
-              "numberOfBytes": "32"
+              ]
+            },
+            "t_mapping(t_address,t_bool)": {
+              "label": "mapping(address => bool)"
+            },
+            "t_address": {
+              "label": "address"
+            },
+            "t_bool": {
+              "label": "bool"
             }
           },
-          "layoutVersion": "1.1",
-          "flat": true
+          "layoutVersion": "1.1"
         }
       },
       "Rewarder": {
         "src": "contracts/Role/Rewarder.sol:8",
         "version": {
-          "withMetadata": "3812b667ae535b232b479cb18fa415990ae3d57903a67473fc733813e2fdb2e8",
+          "withMetadata": "d338f6929046961268b0a821d084ff81cf16171181a2e1e66a06636661b03ac4",
           "withoutMetadata": "2a9c813966c9fbd693ca706fcd35bf9463df9b14e69e527c63ea2d65aa450d58",
           "linkedWithoutMetadata": "2a9c813966c9fbd693ca706fcd35bf9463df9b14e69e527c63ea2d65aa450d58"
         },
@@ -681,42 +739,33 @@
         "layout": {
           "storage": [
             {
-              "label": "_rewarders",
-              "offset": 0,
-              "slot": "0",
-              "type": "t_struct(Role)2573_storage",
               "contract": "Rewarder",
+              "label": "_rewarders",
+              "type": "t_struct(Role)2642_storage",
               "src": "contracts/Role/Rewarder.sol:14"
             }
           ],
           "types": {
-            "t_address": {
-              "label": "address",
-              "numberOfBytes": "20"
-            },
-            "t_bool": {
-              "label": "bool",
-              "numberOfBytes": "1"
-            },
-            "t_mapping(t_address,t_bool)": {
-              "label": "mapping(address => bool)",
-              "numberOfBytes": "32"
-            },
-            "t_struct(Role)2573_storage": {
+            "t_struct(Role)2642_storage": {
               "label": "struct Roles.Role",
               "members": [
                 {
                   "label": "bearer",
-                  "type": "t_mapping(t_address,t_bool)",
-                  "offset": 0,
-                  "slot": "0"
+                  "type": "t_mapping(t_address,t_bool)"
                 }
-              ],
-              "numberOfBytes": "32"
+              ]
+            },
+            "t_mapping(t_address,t_bool)": {
+              "label": "mapping(address => bool)"
+            },
+            "t_address": {
+              "label": "address"
+            },
+            "t_bool": {
+              "label": "bool"
             }
           },
-          "layoutVersion": "1.1",
-          "flat": true
+          "layoutVersion": "1.1"
         }
       },
       "Roles": {
@@ -734,8 +783,7 @@
         "layout": {
           "storage": [],
           "types": {},
-          "layoutVersion": "1.1",
-          "flat": false
+          "layoutVersion": "1.1"
         }
       }
     }

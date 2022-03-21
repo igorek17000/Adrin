@@ -25,17 +25,15 @@ interface AtlantisDistributionInterface extends ethers.utils.Interface {
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "changeLvl(address,uint8)": FunctionFragment;
-    "cury(uint256)": FunctionFragment;
     "decimals()": FunctionFragment;
     "decreaseAllowance(address,uint256)": FunctionFragment;
+    "fund_wallet()": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
-    "lvl(address)": FunctionFragment;
     "mint(uint256)": FunctionFragment;
     "mintToNRS(address,uint256)": FunctionFragment;
     "mintToRS(address,uint256)": FunctionFragment;
     "name()": FunctionFragment;
     "owner()": FunctionFragment;
-    "relaxBalance(address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "symbol()": FunctionFragment;
     "totalSupply()": FunctionFragment;
@@ -57,17 +55,19 @@ interface AtlantisDistributionInterface extends ethers.utils.Interface {
     functionFragment: "changeLvl",
     values: [string, BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "cury", values: [BigNumberish]): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "decreaseAllowance",
     values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "fund_wallet",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "increaseAllowance",
     values: [string, BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "lvl", values: [string]): string;
   encodeFunctionData(functionFragment: "mint", values: [BigNumberish]): string;
   encodeFunctionData(
     functionFragment: "mintToNRS",
@@ -79,10 +79,6 @@ interface AtlantisDistributionInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "relaxBalance",
-    values: [string]
-  ): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
@@ -109,26 +105,24 @@ interface AtlantisDistributionInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "changeLvl", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "cury", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "decreaseAllowance",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "fund_wallet",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "increaseAllowance",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "lvl", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "mintToNRS", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "mintToRS", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "relaxBalance",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
@@ -246,13 +240,6 @@ export class AtlantisDistribution extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    cury(arg0: BigNumberish, overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "cury(uint256)"(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     decimals(overrides?: CallOverrides): Promise<[number]>;
 
     "decimals()"(overrides?: CallOverrides): Promise<[number]>;
@@ -269,6 +256,10 @@ export class AtlantisDistribution extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    fund_wallet(overrides?: CallOverrides): Promise<[string]>;
+
+    "fund_wallet()"(overrides?: CallOverrides): Promise<[string]>;
+
     increaseAllowance(
       spender: string,
       addedValue: BigNumberish,
@@ -280,10 +271,6 @@ export class AtlantisDistribution extends Contract {
       addedValue: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    lvl(arg0: string, overrides?: CallOverrides): Promise<[number]>;
-
-    "lvl(address)"(arg0: string, overrides?: CallOverrides): Promise<[number]>;
 
     mint(
       amount: BigNumberish,
@@ -326,16 +313,6 @@ export class AtlantisDistribution extends Contract {
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     "owner()"(overrides?: CallOverrides): Promise<[string]>;
-
-    relaxBalance(
-      account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    "relaxBalance(address)"(
-      account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -433,13 +410,6 @@ export class AtlantisDistribution extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  cury(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
-
-  "cury(uint256)"(
-    arg0: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   decimals(overrides?: CallOverrides): Promise<number>;
 
   "decimals()"(overrides?: CallOverrides): Promise<number>;
@@ -456,6 +426,10 @@ export class AtlantisDistribution extends Contract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  fund_wallet(overrides?: CallOverrides): Promise<string>;
+
+  "fund_wallet()"(overrides?: CallOverrides): Promise<string>;
+
   increaseAllowance(
     spender: string,
     addedValue: BigNumberish,
@@ -467,10 +441,6 @@ export class AtlantisDistribution extends Contract {
     addedValue: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
-
-  lvl(arg0: string, overrides?: CallOverrides): Promise<number>;
-
-  "lvl(address)"(arg0: string, overrides?: CallOverrides): Promise<number>;
 
   mint(
     amount: BigNumberish,
@@ -513,16 +483,6 @@ export class AtlantisDistribution extends Contract {
   owner(overrides?: CallOverrides): Promise<string>;
 
   "owner()"(overrides?: CallOverrides): Promise<string>;
-
-  relaxBalance(
-    account: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  "relaxBalance(address)"(
-    account: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
 
   renounceOwnership(
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -620,13 +580,6 @@ export class AtlantisDistribution extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    cury(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "cury(uint256)"(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     decimals(overrides?: CallOverrides): Promise<number>;
 
     "decimals()"(overrides?: CallOverrides): Promise<number>;
@@ -643,6 +596,10 @@ export class AtlantisDistribution extends Contract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    fund_wallet(overrides?: CallOverrides): Promise<string>;
+
+    "fund_wallet()"(overrides?: CallOverrides): Promise<string>;
+
     increaseAllowance(
       spender: string,
       addedValue: BigNumberish,
@@ -654,10 +611,6 @@ export class AtlantisDistribution extends Contract {
       addedValue: BigNumberish,
       overrides?: CallOverrides
     ): Promise<boolean>;
-
-    lvl(arg0: string, overrides?: CallOverrides): Promise<number>;
-
-    "lvl(address)"(arg0: string, overrides?: CallOverrides): Promise<number>;
 
     mint(amount: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
@@ -697,13 +650,6 @@ export class AtlantisDistribution extends Contract {
     owner(overrides?: CallOverrides): Promise<string>;
 
     "owner()"(overrides?: CallOverrides): Promise<string>;
-
-    relaxBalance(account: string, overrides?: CallOverrides): Promise<void>;
-
-    "relaxBalance(address)"(
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
@@ -826,13 +772,6 @@ export class AtlantisDistribution extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    cury(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "cury(uint256)"(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
 
     "decimals()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -849,6 +788,10 @@ export class AtlantisDistribution extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    fund_wallet(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "fund_wallet()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     increaseAllowance(
       spender: string,
       addedValue: BigNumberish,
@@ -860,10 +803,6 @@ export class AtlantisDistribution extends Contract {
       addedValue: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    lvl(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "lvl(address)"(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     mint(
       amount: BigNumberish,
@@ -906,16 +845,6 @@ export class AtlantisDistribution extends Contract {
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     "owner()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    relaxBalance(
-      account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    "relaxBalance(address)"(
-      account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1017,16 +946,6 @@ export class AtlantisDistribution extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    cury(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "cury(uint256)"(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "decimals()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1043,6 +962,10 @@ export class AtlantisDistribution extends Contract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    fund_wallet(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "fund_wallet()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     increaseAllowance(
       spender: string,
       addedValue: BigNumberish,
@@ -1053,13 +976,6 @@ export class AtlantisDistribution extends Contract {
       spender: string,
       addedValue: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    lvl(arg0: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "lvl(address)"(
-      arg0: string,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     mint(
@@ -1103,16 +1019,6 @@ export class AtlantisDistribution extends Contract {
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "owner()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    relaxBalance(
-      account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "relaxBalance(address)"(
-      account: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
