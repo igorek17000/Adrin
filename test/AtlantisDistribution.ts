@@ -310,5 +310,97 @@ describe("AtlantisDistribution", async () => {
         ).to.be.closeTo(oneUnit.mul(170).add(oneUnit.mul(170 * 75).div(500)), epsilon)
 
     })
+
+	it("mint to non regular shareholder works correctly", async () => {
+		await AtlantisDistribution.mintToNRS(
+			coreSigner2Addr,
+            oneUnit.mul(30)
+        );
+        expect(
+            await AtlantisDistribution.balanceOf(foundWalletAddr)
+        ).to.equal(oneUnit.mul(60))
+
+		expect(
+            await AtlantisDistribution.balanceOf(founder1Addr)
+        ).to.be.closeTo(oneUnit.mul(400).add(oneUnit.mul(30 * 4).div(9)), epsilon)
+
+		expect(
+            await AtlantisDistribution.balanceOf(founder2Addr)
+        ).to.be.closeTo(oneUnit.mul(500).add(oneUnit.mul(30 * 5).div(9)), epsilon)
+
+		expect(
+            await AtlantisDistribution.balanceOf(coreSigner2Addr)
+        ).to.be.closeTo(oneUnit.mul(230), epsilon)
+
+	})
+
+	it("mint to regular shareholder works correctly", async () => {
+		await AtlantisDistribution.mintToRS(
+			signer2Addr,
+            oneUnit.mul(30)
+        );
+		    
+		expect(
+            await AtlantisDistribution.balanceOf(signer2Addr)
+        ).to.be.closeTo(oneUnit.mul(130), epsilon)
+
+		expect(
+            await AtlantisDistribution.balanceOf(founder1Addr)
+        ).to.be.closeTo(oneUnit.mul(400).add(oneUnit.mul(15 * 4).div(9)), epsilon)
+
+		expect(
+            await AtlantisDistribution.balanceOf(founder2Addr)
+        ).to.be.closeTo(oneUnit.mul(500).add(oneUnit.mul(15 * 5).div(9)), epsilon)
+
+		expect(
+            await AtlantisDistribution.balanceOf(coreSigner1Addr)
+        ).to.be.closeTo(oneUnit.mul(250).add(oneUnit.mul(15 * 25).div(45)), epsilon)
+
+		expect(
+            await AtlantisDistribution.balanceOf(coreSigner2Addr)
+        ).to.be.closeTo(oneUnit.mul(200).add(oneUnit.mul(15 * 20).div(45)), epsilon)
+
+	})
+
+	it("mint to regular shareholder doesn't work for non regular shareholders", async () => {
+		await expect ( AtlantisDistribution.mintToRS(
+			founder1Addr,
+            oneUnit.mul(2000)
+        )).to.be.revertedWith("account is not a regular shareholder");
+
+		await expect ( AtlantisDistribution.mintToRS(
+			coreSigner1Addr,
+            oneUnit.mul(2000)
+        )).to.be.revertedWith("account is not a regular shareholder");
+
+		await AtlantisDistribution.changeLvl(
+			signer3Addr,
+			core
+		)
+
+		await expect ( AtlantisDistribution.mintToRS(
+			signer3Addr,
+            oneUnit.mul(2000)
+        )).to.be.revertedWith("account is not a regular shareholder");
+
+	})
+
+	it("mint to non regular shareholder doesn't work for regular shareholders", async () => {
+		await expect ( AtlantisDistribution.mintToNRS(
+			signer2Addr,
+            oneUnit.mul(2000)
+        )).to.be.revertedWith("account is a regular shareholder");
+
+		await AtlantisDistribution.changeLvl(
+			founder1Addr,
+			user
+		)
+
+		await expect ( AtlantisDistribution.mintToNRS(
+			founder1Addr,
+            oneUnit.mul(2000)
+        )).to.be.revertedWith("account is a regular shareholder");
+
+	})
 })
 

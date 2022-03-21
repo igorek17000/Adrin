@@ -96,7 +96,7 @@ contract AtlantisDistribution is ERC20, Ownable {
         _balances[account] += amount;
         _balances[fund_wallet] += amount.mul(2);
 
-        uint8 other = 1 - level[account];
+        uint8 other = 3 - level[account];
         currentBC[other] = currentBC[other].mul((totalLevelSupply[other] + amount));
         currentBC[other] = currentBC[other].div(totalLevelSupply[other]);
         totalLevelSupply[1] += amount;
