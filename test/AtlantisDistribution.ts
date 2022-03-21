@@ -18,16 +18,20 @@ describe("AtlantisDistribution", async () => {
     let signer1: Signer
     let signer2: Signer
     let signer3: Signer
-    let signer4: Signer
-    let founderSigner: Signer
+    let coreSigner1: Signer
+	let coreSigner2: Signer
+    let founderSigner1: Signer
+	let founderSigner2: Signer
     
 
     let foundWalletAddr: Address
     let signer1Addr: Address
     let signer2Addr: Address
     let signer3Addr: Address
-    let signer4Addr: Address
-    let founderAddr: Address
+    let coreSigner1Addr: Address
+	let coreSigner2Addr: Address
+    let founder1Addr: Address
+	let founder2Addr: Address
 
     const oneHundred = BigNumber.from(10).pow(18).mul(100);
     const oneUnit = BigNumber.from(10).pow(18);
@@ -38,13 +42,15 @@ describe("AtlantisDistribution", async () => {
     let AtlantisDistribution: AtlantisDistribution
 
     beforeEach(async () => {
-        [foundWallet, signer1, signer2, signer3, signer4, founderSigner] = await ethers.getSigners()
+        [foundWallet, signer1, signer2, signer3, coreSigner1, coreSigner2, founderSigner1, founderSigner2] = await ethers.getSigners()
         foundWalletAddr = await foundWallet.getAddress()
         signer1Addr = await signer1.getAddress()
         signer2Addr = await signer2.getAddress()
         signer3Addr = await signer3.getAddress()
-        signer4Addr = await signer4.getAddress()
-        founderAddr = await founderSigner.getAddress()
+        coreSigner1Addr = await coreSigner1.getAddress()
+		coreSigner2Addr = await coreSigner2.getAddress()
+        founder1Addr = await founderSigner1.getAddress()
+		founder2Addr = await founderSigner2.getAddress()
         AtlantisDistribution = await deployAtlantisDistribution()
         await initializeLevels();
 		await initializeBalances();
@@ -52,15 +58,24 @@ describe("AtlantisDistribution", async () => {
 
     const initializeLevels = async () => {
         await AtlantisDistribution.changeLvl(
-          founderAddr,
+          founder1Addr,
           founder
         )
+
+		await AtlantisDistribution.changeLvl(
+			founder2Addr,
+			founder
+		  )
         
-        AtlantisDistribution.connect(signer1)
         await AtlantisDistribution.changeLvl(
-          signer4Addr,
+          coreSigner1Addr,
           core
         )
+
+		await AtlantisDistribution.changeLvl(
+			coreSigner2Addr,
+			core
+		  )
     }
 
 	const initializeBalances = async () => {
@@ -75,13 +90,23 @@ describe("AtlantisDistribution", async () => {
 		  )
   
 		  await AtlantisDistribution.transfer(
-			signer4Addr,
+			coreSigner1Addr,
 			oneUnit.mul(250)
+		  )
+
+		  await AtlantisDistribution.transfer(
+			coreSigner2Addr,
+			oneUnit.mul(200)
 		  )
   
 		  await AtlantisDistribution.transfer(
-			founderAddr,
+			founder1Addr,
 			oneUnit.mul(400)
+		  )
+
+		  await AtlantisDistribution.transfer(
+			founder2Addr,
+			oneUnit.mul(500)
 		  )
     }
 
@@ -108,10 +133,10 @@ describe("AtlantisDistribution", async () => {
 
     it("initialize levels correctly", async () => {
         expect(
-          await AtlantisDistribution.level(signer4Addr)
+          await AtlantisDistribution.level(coreSigner1Addr)
         ).to.equal(core)
         expect(
-          await AtlantisDistribution.level(founderAddr)
+          await AtlantisDistribution.level(founder1Addr)
         ).to.equal(founder)
     })
 
@@ -123,11 +148,17 @@ describe("AtlantisDistribution", async () => {
             await AtlantisDistribution.balanceOf(signer3Addr)
         ).to.equal(oneUnit.mul(200))
         expect(
-            await AtlantisDistribution.balanceOf(signer4Addr)
+            await AtlantisDistribution.balanceOf(coreSigner1Addr)
         ).to.equal(oneUnit.mul(250))
+		expect(
+            await AtlantisDistribution.balanceOf(coreSigner2Addr)
+        ).to.equal(oneUnit.mul(200))
         expect(
-            await AtlantisDistribution.balanceOf(founderAddr)
+            await AtlantisDistribution.balanceOf(founder1Addr)
         ).to.equal(oneUnit.mul(400))
+		expect(
+            await AtlantisDistribution.balanceOf(founder2Addr)
+        ).to.equal(oneUnit.mul(500))
     })
 
     it("non owner accounts can't mint new tokens", async () => {
@@ -140,20 +171,39 @@ describe("AtlantisDistribution", async () => {
         ).to.be.revertedWith("Ownable: caller is not the owner")
     })
 
-	const epsilon = BigNumber.from(10).pow(2).mul(1);
+	it("non owner accounts can't change other account's level", async () => {
+        let AtlantisDistributionS2 = AtlantisDistribution.connect(signer2)
 
-    it("owner can mint new tokens and new tokens distribution is corrects", async () => {
+        await expect(
+            AtlantisDistributionS2.changeLvl(
+				signer3Addr,
+                founder
+            )
+        ).to.be.revertedWith("Ownable: caller is not the owner")
+    })
+
+	const epsilon = BigNumber.from(10);
+
+    it("owner can mint new tokens and new tokens distribution is correct", async () => {
         await AtlantisDistribution.mint(
             oneUnit.mul(1000)
         )
 
         expect(
-            await AtlantisDistribution.balanceOf(founderAddr)
-        ).to.equal(oneUnit.mul(650))
+            await AtlantisDistribution.balanceOf(founder1Addr)
+        ).to.equal(oneUnit.mul(400).add(oneUnit.mul(250 * 4).div(9)))
+
+		expect(
+            await AtlantisDistribution.balanceOf(founder2Addr)
+        ).to.equal(oneUnit.mul(500).add(oneUnit.mul(250 * 5).div(9)))
 
         expect(
-            await AtlantisDistribution.balanceOf(signer4Addr)
-        ).to.equal(oneUnit.mul(500))
+            await AtlantisDistribution.balanceOf(coreSigner1Addr)
+        ).to.equal(oneUnit.mul(250).add(oneUnit.mul(250 * 25).div(45)))
+
+		expect(
+            await AtlantisDistribution.balanceOf(coreSigner2Addr)
+        ).to.equal(oneUnit.mul(200).add(oneUnit.mul(250 * 20).div(45)))
 
         expect(
             await AtlantisDistribution.balanceOf(foundWalletAddr)
@@ -165,6 +215,10 @@ describe("AtlantisDistribution", async () => {
             oneUnit.mul(1000)
         )
 
+		let oldBalanceCore1 =  await AtlantisDistribution.balanceOf(coreSigner1Addr);
+		let oldBalanceCore2 = await AtlantisDistribution.balanceOf(coreSigner2Addr);
+		let oldBalanceCore3 = await AtlantisDistribution.balanceOf(signer3Addr);
+		let sumOldBalances = oldBalanceCore1.add(oldBalanceCore2).add(oldBalanceCore3);
         await AtlantisDistribution.changeLvl(
           signer3Addr,
           core
@@ -174,205 +228,87 @@ describe("AtlantisDistribution", async () => {
 		).to.equal(core)
 
 		await AtlantisDistribution.mint(
-            oneUnit.mul(1000)
+            oneUnit.mul(2000)
         )
-
-		expect(
-            await AtlantisDistribution.balanceOf(founderAddr)
-        ).to.equal(oneUnit.mul(900))
+        
+        expect(
+            await AtlantisDistribution.balanceOf(foundWalletAddr)
+        ).to.equal(oneUnit.mul(1500))
 
         expect(
-            await AtlantisDistribution.balanceOf(signer4Addr)
-        ).to.equal(oneUnit.mul(500).add(oneUnit.mul(250 * 500).div(700)))
+            await AtlantisDistribution.balanceOf(coreSigner1Addr)
+        ).to.be.closeTo(oldBalanceCore1.add(oneUnit.mul(500).mul(oldBalanceCore1).div(sumOldBalances)), epsilon)
+
+		expect(
+            await AtlantisDistribution.balanceOf(coreSigner2Addr)
+        ).to.be.closeTo(oldBalanceCore2.add(oneUnit.mul(500).mul(oldBalanceCore2).div(sumOldBalances)), epsilon)
 
 		expect(
             await AtlantisDistribution.balanceOf(signer3Addr)
-        ).to.equal(oneUnit.mul(200).add(oneUnit.mul(250 * 200).div(700)))
+        ).to.be.closeTo(oldBalanceCore3.add(oneUnit.mul(500).mul(oldBalanceCore3).div(sumOldBalances)), epsilon)
 
-        expect(
-            await AtlantisDistribution.balanceOf(foundWalletAddr)
-        ).to.equal(oneUnit.mul(1000))
 
     })
 
-    // it("non master minter can not remove a minter", async () => {
-    //     let AtlantisDistributionMM = AtlantisDistribution.connect(masterMinter)
+	it("transfer between account and then mint works correctly", async () => {
+		let AtlantisDistributionS2 = AtlantisDistribution.connect(signer2)
+        await AtlantisDistributionS2.transfer(
+			founder1Addr,
+            oneUnit.mul(20)
+        )
 
-    //     await AtlantisDistributionMM.configureMinter(
-    //         signer3Addr,
-    //         oneHundred
-    //     )
+		let AtlantisDistributionF2 = AtlantisDistribution.connect(founderSigner2)
+		await AtlantisDistributionF2.transfer(
+			coreSigner1Addr,
+            oneUnit.mul(50)
+        )
 
-    //     expect(
-    //         await AtlantisDistribution.isMinter(signer3Addr)
-    //     ).to.equal(true)
+		let AtlantisDistributionC2 = AtlantisDistribution.connect(coreSigner2)
+		await AtlantisDistributionC2.transfer(
+			coreSigner1Addr,
+            oneUnit.mul(30)
+        )
 
-    //     let AtlantisDistributionS2 = AtlantisDistribution.connect(signer2)
+		expect(
+            await AtlantisDistribution.balanceOf(signer2Addr)
+        ).to.be.closeTo(oneUnit.mul(80), epsilon)
 
-    //     await expect(
-    //         AtlantisDistributionS2.removeMinter(signer3Addr)
-    //     ).to.be.revertedWith("TokenToken: caller is not the masterMinter")
-    // })
+		expect(
+            await AtlantisDistribution.balanceOf(founder1Addr)
+        ).to.be.closeTo(oneUnit.mul(420), epsilon)
 
-    // it("master minter can remove a minter", async () => {
-    //     let AtlantisDistributionMM = AtlantisDistribution.connect(masterMinter)
+		expect(
+            await AtlantisDistribution.balanceOf(founder2Addr)
+        ).to.be.closeTo(oneUnit.mul(450), epsilon)
 
-    //     await AtlantisDistributionMM.configureMinter(
-    //         signer3Addr,
-    //         oneHundred
-    //     )
+		expect(
+            await AtlantisDistribution.balanceOf(coreSigner2Addr)
+        ).to.be.closeTo(oneUnit.mul(170), epsilon)
 
-    //     expect(
-    //         await AtlantisDistribution.isMinter(signer3Addr)
-    //     ).to.equal(true)
+		expect(
+            await AtlantisDistribution.balanceOf(coreSigner1Addr)
+        ).to.be.closeTo(oneUnit.mul(330), epsilon)
 
-    //     await AtlantisDistributionMM.removeMinter(signer3Addr)
+		await AtlantisDistribution.mint(
+            oneUnit.mul(300)
+        )
+		
+		expect(
+            await AtlantisDistribution.balanceOf(founder1Addr)
+        ).to.be.closeTo(oneUnit.mul(420).add(oneUnit.mul(420 * 75).div(870)), epsilon)
 
-    //     expect(
-    //         await AtlantisDistribution.isMinter(signer3Addr)
-    //     ).to.equal(false)
-    // })
+		expect(
+            await AtlantisDistribution.balanceOf(founder2Addr)
+        ).to.be.closeTo(oneUnit.mul(450).add(oneUnit.mul(450 * 75).div(870)), epsilon)
 
-    // it("only owner can update master minter", async () => {
-    //     let AtlantisDistributionS2 = AtlantisDistribution.connect(signer2)
+		expect(
+            await AtlantisDistribution.balanceOf(coreSigner1Addr)
+        ).to.be.closeTo(oneUnit.mul(330).add(oneUnit.mul(330 * 75).div(500)), epsilon)
 
-    //     await expect(
-    //         AtlantisDistributionS2.updateMasterMinter(
-    //             signer3Addr
-    //         )
-    //     ).to.be.revertedWith("Ownable: caller is not the owner")
+		expect(
+            await AtlantisDistribution.balanceOf(coreSigner2Addr)
+        ).to.be.closeTo(oneUnit.mul(170).add(oneUnit.mul(170 * 75).div(500)), epsilon)
 
-
-    //     let AtlantisDistributionS1 = AtlantisDistribution.connect(signer1)
-
-    //     await AtlantisDistributionS1.updateMasterMinter(signer3Addr)
-
-    //     expect(
-    //         await AtlantisDistribution.theMasterMinter()
-    //     ).to.equal(signer3Addr)
-    // })
-
-    // it("non minters can not mint new tokens", async () => {
-    //     let AtlantisDistributionMM = AtlantisDistribution.connect(masterMinter)
-
-    //     await AtlantisDistributionMM.configureMinter(
-    //         signer3Addr,
-    //         oneHundred
-    //     )
-
-    //     let AtlantisDistributionS4 = AtlantisDistribution.connect(signer4)
-
-    //     await expect(
-    //         AtlantisDistributionS4.mint(
-    //             signer4Addr, 
-    //             oneHundred
-    //         )
-    //     ).to.be.revertedWith("PayToken: caller is not a minter")
-
-    // })
-
-    
-
-    // it("non minters can not burn tokens", async () => {
-    //     let AtlantisDistributionMM = AtlantisDistribution.connect(masterMinter)
-
-    //     await AtlantisDistributionMM.configureMinter(
-    //         signer3Addr,
-    //         oneHundred
-    //     )
-
-    //     let AtlantisDistributionS4 = AtlantisDistribution.connect(signer4)
-
-    //     await expect(
-    //         AtlantisDistributionS4.burn(
-    //             oneHundred
-    //         )
-    //     ).to.be.revertedWith("PayToken: caller is not a minter")
-
-    // })
-
-    // it("minters can burn tokens", async () => {
-    //     let AtlantisDistributionMM = AtlantisDistribution.connect(masterMinter)
-
-    //     await AtlantisDistributionMM.configureMinter(
-    //         signer3Addr,
-    //         oneHundred
-    //     )
-
-    //     let AtlantisDistributionS3 = AtlantisDistribution.connect(signer3)
-
-    //     await AtlantisDistributionS3.mint(
-    //         signer3Addr, 
-    //         oneHundred
-    //     )
-
-    //     expect(
-    //         await AtlantisDistribution.balanceOf(signer3Addr)
-    //     ).to.equal(oneHundred)
-
-    //     expect(
-    //         await AtlantisDistributionS3.burn(oneHundred)
-    //     ).to.emit(AtlantisDistribution, "Burn")
-
-    // })
-
-    // it("transferWithReferralCode", async () => {
-    //     let AtlantisDistributionMM = AtlantisDistribution.connect(masterMinter)
-
-    //     await AtlantisDistributionMM.configureMinter(
-    //         signer3Addr,
-    //         oneHundred
-    //     )
-
-    //     let AtlantisDistributionS3 = AtlantisDistribution.connect(signer3)
-
-    //     await AtlantisDistributionS3.mint(
-    //         signer4Addr, 
-    //         oneHundred
-    //     )
-
-    //     let AtlantisDistributionS4 = AtlantisDistribution.connect(signer4)
-
-    //     expect(
-    //         await AtlantisDistributionS4.transferWithReferralCode(
-    //             signer1Addr,
-    //             oneHundred,
-    //             theReferralCode
-    //         )
-    //     ).to.emit(AtlantisDistribution, "TransferWithReferralCode")
-
-    // })
-
-    // it("transferFromWithReferralCode", async () => {
-    //     let AtlantisDistributionMM = AtlantisDistribution.connect(masterMinter)
-
-    //     await AtlantisDistributionMM.configureMinter(
-    //         signer3Addr,
-    //         oneHundred
-    //     )
-
-    //     let AtlantisDistributionS3 = AtlantisDistribution.connect(signer3)
-
-    //     await AtlantisDistributionS3.mint(
-    //         signer4Addr, 
-    //         oneHundred
-    //     )
-
-    //     let AtlantisDistributionS4 = AtlantisDistribution.connect(signer4)
-
-    //     await AtlantisDistributionS4.approve(signer2Addr, oneHundred)
-
-    //     let AtlantisDistributionS2 = AtlantisDistribution.connect(signer2)
-
-    //     expect(
-    //         await AtlantisDistributionS2.transferFromWithReferralCode(
-    //             signer4Addr,
-    //             signer1Addr,
-    //             oneHundred,
-    //             theReferralCode
-    //         )
-    //     ).to.emit(AtlantisDistribution, "TransferWithReferralCode")
-
-    // })
+    })
 })
 
