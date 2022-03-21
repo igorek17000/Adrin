@@ -16,7 +16,8 @@ contract AtlantisDistribution is ERC20, Ownable {
     // BC is balance coefficient of last time an address relaxed
     mapping (address => uint256) private balanceCoefficient;
     // lvl of address could be 0,1,2 as explained before
-    mapping (address => uint8) private level;
+    mapping (address => uint8) public level;
+    //TODO public or private
     uint8 constant size = 3;
     // currentBC is current balance coefficient for every lvl
     uint256[size] currentBC;
@@ -27,9 +28,9 @@ contract AtlantisDistribution is ERC20, Ownable {
 
     constructor(string memory name, string memory symbol, address payable _fund_wallet) ERC20(name, symbol) {
         _mint(msg.sender, 300000000 * 10**uint(decimals()));
-        currentBC[0] = 10**uint(decimals());
-        currentBC[1] = 10**uint(decimals());
-        currentBC[2] = 10**uint(decimals());
+        currentBC[0] = 10**uint(decimals() * 2);
+        currentBC[1] = 10**uint(decimals() * 2);
+        currentBC[2] = 10**uint(decimals() * 2);
         totalLevelSupply[0] = 300000000 * 10**uint(decimals());
         totalLevelSupply[1] = 0;
         totalLevelSupply[2] = 0;
