@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 
-import "./WrappedERC20Token.sol";
+import "./EnhancedERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
   
