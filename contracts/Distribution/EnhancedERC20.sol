@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 /**
  * @dev Implementation of the {IERC20} interface.
@@ -30,11 +31,26 @@ import "@openzeppelin/contracts/utils/Context.sol";
  * allowances. See {IERC20-approve}.
  */
 contract ERC20 is Context, IERC20 {
-    mapping (address => uint256) _balances;
+    using SafeMath for uint256;
+
+    mapping (address => uint256) internal _balances;
 
     mapping (address => mapping (address => uint256)) private _allowances;
 
-    uint256 _totalSupply;
+    uint256 internal _totalSupply;
+
+    // lvl of address could be 0,1,2 as explained before
+    mapping (address => uint8) public level;
+
+    uint8 constant size = 3;
+    // total balance of each lvl
+    uint256[size] internal totalLevelSupply;
+    
+    // BC is balance coefficient of last time an address relaxed
+    mapping (address => uint256) internal balanceCoefficient;
+
+    // currentBC is current balance coefficient for every lvl
+    uint256[size] internal currentBC;
 
     string private _name;
     string private _symbol;
@@ -96,7 +112,11 @@ contract ERC20 is Context, IERC20 {
      * @dev See {IERC20-balanceOf}.
      */
     function balanceOf(address account) public view virtual override returns (uint256) {
-        return _balances[account];
+        if (level[account] == 0)
+            return _balances[account];
+        return (
+            currentBC[level[account]].mul(_balances[account])).div(balanceCoefficient[account]
+        );
     }
 
     /**
@@ -299,5 +319,18 @@ contract ERC20 is Context, IERC20 {
      *
      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
-    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual { }
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual { 
+        relaxBalance(from);
+        relaxBalance(to);
+        totalLevelSupply[level[from]] = totalLevelSupply[level[from]].sub(amount);
+        totalLevelSupply[level[to]] = totalLevelSupply[level[to]].add(amount);
+    }
+
+    
+    function relaxBalance(address account) internal {
+        if (level[account] == 0)
+            return;
+        _balances[account] = (currentBC[level[account]].mul(_balances[account])).div(balanceCoefficient[account]);
+        balanceCoefficient[account] = currentBC[level[account]];
+    }
 }
