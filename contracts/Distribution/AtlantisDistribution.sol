@@ -41,7 +41,6 @@ contract AtlantisDistribution is ERC20, Ownable {
         if (level[account] == 0)
             return _balances[account];
         return (
-            // FIXME: first time the balanceCoefficient of an account is 0
             currentBC[level[account]].mul(_balances[account])).div(balanceCoefficient[account]
             );
     }
@@ -64,8 +63,8 @@ contract AtlantisDistribution is ERC20, Ownable {
             currentBC[1] = currentBC[1].div(totalLevelSupply[1]);
         }
         // FIXME: use safe math for the following operations
-        // TODO: also add the newly minted token to totalLevelSupply[0]
         _balances[fund_wallet] += amount.div(2);
+        totalLevelSupply[0] += amount.div(2);
         totalLevelSupply[1] += amount.div(4);
         totalLevelSupply[2] += amount.div(4); 
         _totalSupply += amount;
