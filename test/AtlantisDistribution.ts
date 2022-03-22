@@ -35,6 +35,7 @@ describe("AtlantisDistribution", async () => {
 
     const oneHundred = BigNumber.from(10).pow(18).mul(100);
     const oneUnit = BigNumber.from(10).pow(18);
+	const _totalSupply =  oneUnit.mul(300).mul(1000000);
     const founder = 2;
     const core = 1;
     const user = 0;
@@ -125,9 +126,10 @@ describe("AtlantisDistribution", async () => {
         expect(await AtlantisDistribution.symbol()).to.equal("ADT")
         expect(await AtlantisDistribution.decimals()).to.equal(18)
 
-        // expect(await AtlantisDistribution.balanceOf(AtlantisDistribution.address)).to.equal(
-        //   0
-        // )
+        expect(await AtlantisDistribution.balanceOf(AtlantisDistribution.address)).to.equal(
+          0
+        )
+		expect(await AtlantisDistribution.totalSupply()).to.equal(_totalSupply);
         expect(await AtlantisDistribution.fund_wallet()).to.equal(await foundWallet.getAddress());
     })
 
@@ -159,6 +161,7 @@ describe("AtlantisDistribution", async () => {
 		expect(
             await AtlantisDistribution.balanceOf(founder2Addr)
         ).to.equal(oneUnit.mul(500))
+		expect(await AtlantisDistribution.totalSupply()).to.equal(_totalSupply);
     })
 
     it("non owner accounts can't mint new tokens", async () => {
@@ -208,6 +211,8 @@ describe("AtlantisDistribution", async () => {
         expect(
             await AtlantisDistribution.balanceOf(foundWalletAddr)
         ).to.equal(oneUnit.mul(500))
+
+		expect(await AtlantisDistribution.totalSupply()).to.equal(_totalSupply.add(oneUnit.mul(1000)));
     })
 
 	it("mint, changing level from 0 to level 1, mint again works correctly", async () => {
@@ -247,6 +252,8 @@ describe("AtlantisDistribution", async () => {
             await AtlantisDistribution.balanceOf(signer3Addr)
         ).to.be.closeTo(oldBalanceCore3.add(oneUnit.mul(500).mul(oldBalanceCore3).div(sumOldBalances)), epsilon)
 
+
+		expect(await AtlantisDistribution.totalSupply()).to.equal(_totalSupply.add(oneUnit.mul(3000)));
 
     })
 
@@ -309,6 +316,7 @@ describe("AtlantisDistribution", async () => {
             await AtlantisDistribution.balanceOf(coreSigner2Addr)
         ).to.be.closeTo(oneUnit.mul(170).add(oneUnit.mul(170 * 75).div(500)), epsilon)
 
+		expect(await AtlantisDistribution.totalSupply()).to.equal(_totalSupply.add(oneUnit.mul(300)));
     })
 
 	it("mint to non regular shareholder works correctly", async () => {
@@ -331,7 +339,8 @@ describe("AtlantisDistribution", async () => {
 		expect(
             await AtlantisDistribution.balanceOf(coreSigner2Addr)
         ).to.be.closeTo(oneUnit.mul(230), epsilon)
-
+		
+		expect(await AtlantisDistribution.totalSupply()).to.equal(_totalSupply.add(oneUnit.mul(120)));
 	})
 
 	it("mint to regular shareholder works correctly", async () => {
@@ -359,6 +368,8 @@ describe("AtlantisDistribution", async () => {
 		expect(
             await AtlantisDistribution.balanceOf(coreSigner2Addr)
         ).to.be.closeTo(oneUnit.mul(200).add(oneUnit.mul(15 * 20).div(45)), epsilon)
+
+		expect(await AtlantisDistribution.totalSupply()).to.equal(_totalSupply.add(oneUnit.mul(60)));
 
 	})
 
@@ -402,5 +413,32 @@ describe("AtlantisDistribution", async () => {
         )).to.be.revertedWith("account is a regular shareholder");
 
 	})
+
+	it("burn and mint again works correctly", async () => {
+		let AtlantisDistributionF1 = AtlantisDistribution.connect(founderSigner1)
+		await AtlantisDistributionF1.burn(
+            oneUnit.mul(100)
+        )
+
+
+		expect(
+            await AtlantisDistribution.balanceOf(founder1Addr)
+        ).to.be.closeTo(oneUnit.mul(300), epsilon)
+
+		await AtlantisDistribution.mint(
+            oneUnit.mul(300)
+        )
+
+		expect(
+            await AtlantisDistribution.balanceOf(founder1Addr)
+        ).to.be.closeTo(oneUnit.mul(300).add(oneUnit.mul(75 * 3).div(8)), epsilon)
+
+		expect(
+            await AtlantisDistribution.balanceOf(founder2Addr)
+        ).to.be.closeTo(oneUnit.mul(500).add(oneUnit.mul(75 * 5).div(8)), epsilon)
+
+		expect(await AtlantisDistribution.totalSupply()).to.equal(_totalSupply.add(oneUnit.mul(200)));
+	})
+	
 })
 

@@ -85,7 +85,10 @@ contract AtlantisDistribution is ERC20, Ownable {
         }
         _totalSupply = _totalSupply.add(amount.mul(2));
     }
+
+    function burn(uint256 _amount) external {
+        _burn(_msgSender(), _amount);
+    }
+
 }
 
-//TODO add total supply to test files
-//TODO test for burn
