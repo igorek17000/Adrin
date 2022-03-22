@@ -41,6 +41,7 @@ contract AtlantisDistribution is ERC20, Ownable {
         if (level[account] == 0)
             return _balances[account];
         return (
+            // FIXME: first time the balanceCoefficient of an account is 0
             currentBC[level[account]].mul(_balances[account])).div(balanceCoefficient[account]
             );
     }
@@ -62,6 +63,8 @@ contract AtlantisDistribution is ERC20, Ownable {
             currentBC[1] = currentBC[1].mul((totalLevelSupply[1] + amount.div(4)));
             currentBC[1] = currentBC[1].div(totalLevelSupply[1]);
         }
+        // FIXME: use safe math for the following operations
+        // TODO: also add the newly minted token to totalLevelSupply[0]
         _balances[fund_wallet] += amount.div(2);
         totalLevelSupply[1] += amount.div(4);
         totalLevelSupply[2] += amount.div(4); 
@@ -84,6 +87,7 @@ contract AtlantisDistribution is ERC20, Ownable {
         relaxBalance(account);
         uint8 oldLvl = level[account];
         level[account] = newLvl;
+        // FIXME: use safe math
         totalLevelSupply[oldLvl] -= _balances[account];
         totalLevelSupply[newLvl] += _balances[account];
         balanceCoefficient[account] = currentBC[newLvl];
@@ -93,12 +97,15 @@ contract AtlantisDistribution is ERC20, Ownable {
         // at least one address with positive balance must have lvl 1 and 2, if not code does not crash but some tokens will be locked
         require(level[account] != 0, "account is a regular shareholder");
         relaxBalance(account);
+        // FIXME: use safe math
         _balances[account] += amount;
         _balances[fund_wallet] += amount.mul(2);
 
         uint8 other = 3 - level[account];
         currentBC[other] = currentBC[other].mul((totalLevelSupply[other] + amount));
         currentBC[other] = currentBC[other].div(totalLevelSupply[other]);
+
+        // FIXME: use safe math
         totalLevelSupply[1] += amount;
         totalLevelSupply[2] += amount; 
         _totalSupply += amount;
@@ -107,10 +114,13 @@ contract AtlantisDistribution is ERC20, Ownable {
     function mintToRS(address account, uint256 amount) external onlyOwner {
         // at least one address with positive balance must have lvl 1 and 2, if not code does not crash but some tokens will be locked
         require(level[account] == 0, "account is not a regular shareholder");
+        // FIXME: use safe math 
         _balances[account] += amount;
         for (uint8 i = 1; i <= 2; i++) {
             currentBC[i] = currentBC[i].mul((totalLevelSupply[i] + amount.div(2)));
             currentBC[i] = currentBC[i].div(totalLevelSupply[i]);
+
+            // FIXME: use safe math 
             totalLevelSupply[i] += amount.div(2);
         }
         _totalSupply += amount;
@@ -124,6 +134,8 @@ contract AtlantisDistribution is ERC20, Ownable {
         // beforeTransferFunction start
         relaxBalance(sender);
         relaxBalance(recipient);
+
+        // FIXME: use safe math 
         totalLevelSupply[level[sender]] -= amount;
         totalLevelSupply[level[recipient]] += amount;
         // beforeTransferFuncion end
