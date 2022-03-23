@@ -6,7 +6,7 @@ import "./DistributorERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
   
-contract AtlantisDistribution is DistributorERC20, Ownable {
+contract AtlantisTokenWithDistribution is DistributorERC20, Ownable {
     // ordinary users (OU) lvl 0
     // shareholders (SH) lvl 1 and 2 (lvl 2s are founder)
 
@@ -14,8 +14,8 @@ contract AtlantisDistribution is DistributorERC20, Ownable {
     // fund wallet for regular shareholders
     address payable public fund_wallet;
 
-    constructor(string memory name, string memory symbol, address payable _fund_wallet) DistributorERC20(name, symbol) {
-        totalLevelSupply[0] = 300000000 * 10**uint(decimals());
+    constructor(string memory name, string memory symbol, address payable _fund_wallet, uint256 _initialSupply) DistributorERC20(name, symbol) {
+        totalLevelSupply[0] = _initialSupply;
         totalLevelSupply[1] = 0;
         totalLevelSupply[2] = 0;
 
@@ -23,11 +23,17 @@ contract AtlantisDistribution is DistributorERC20, Ownable {
         currentBC[1] = 10**uint(decimals() * 2);
         currentBC[2] = 10**uint(decimals() * 2);
 
-        _mint(msg.sender, 300000000 * 10**uint(decimals()));
+        _mint(_msgSender(), _initialSupply);
         fund_wallet = _fund_wallet;
     }
 
-    function mint(uint256 amount) external onlyOwner {
+    function _mintAndDistribute(uint256 amount) internal {
+
+        require(
+            amount > 0,
+            "Distribution: zero amount"
+        );
+
         // at least one address with positive balance must have lvl 1 and 2, if not code does not crash but some tokens will be locked
         if (totalLevelSupply[2] != 0) {
             currentBC[2] = currentBC[2].mul((totalLevelSupply[2].add(amount.div(4))));
@@ -45,7 +51,17 @@ contract AtlantisDistribution is DistributorERC20, Ownable {
         _totalSupply = _totalSupply.add(amount);
     }
 
-    function changeLvl(address account, uint8 newLvl) external onlyOwner {
+    function _changeLevel(address account, uint8 newLvl) internal {
+        require(
+            account != address(0),
+            "Distribution: can not change zero address level"
+        );
+
+        require(
+            newLvl < 3,
+            "Distribution: level exceeds"
+        );
+
         relaxBalance(account);
         uint8 oldLvl = levels[account];
         levels[account] = newLvl;
@@ -54,9 +70,10 @@ contract AtlantisDistribution is DistributorERC20, Ownable {
         balanceCoefficients[account] = currentBC[newLvl];
     }
 
-    function mintToNRS(address account, uint256 amount) external onlyOwner {
+    function _mintForVIP(address account, uint256 amount) internal {
         // at least one address with positive balance must have lvl 1 and 2, if not code does not crash but some tokens will be locked
-        require(levels[account] != 0, "account is a regular shareholder");
+        require(levels[account] != 0, "Distribution: account is not VIP");
+
         relaxBalance(account);
         _balances[account] = _balances[account].add(amount);
         _balances[fund_wallet] = _balances[fund_wallet].add(amount.mul(2));
@@ -72,9 +89,10 @@ contract AtlantisDistribution is DistributorERC20, Ownable {
         _totalSupply = _totalSupply.add(amount.mul(4));
     }
 
-    function mintToRS(address account, uint256 amount) external onlyOwner {
+    function _mintForNormal(address account, uint256 amount) internal {
         // at least one address with positive balance must have lvl 1 and 2, if not code does not crash but some tokens will be locked
-        require(levels[account] == 0, "account is not a regular shareholder");
+        require(levels[account] == 0, "Distribution: account is not normal");
+
         _balances[account] = _balances[account].add(amount);
         totalLevelSupply[0].add(amount);
 
@@ -85,10 +103,5 @@ contract AtlantisDistribution is DistributorERC20, Ownable {
         }
         _totalSupply = _totalSupply.add(amount.mul(2));
     }
-
-    function burn(uint256 _amount) external {
-        _burn(_msgSender(), _amount);
-    }
-
 }
 
