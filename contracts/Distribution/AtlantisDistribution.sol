@@ -2,11 +2,11 @@
 pragma solidity ^0.8.0;
 
 
-import "./EnhancedERC20.sol";
+import "./DistributorERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
   
-contract AtlantisDistribution is ERC20, Ownable {
+contract AtlantisDistribution is DistributorERC20, Ownable {
     // ordinary users (OU) lvl 0
     // shareholders (SH) lvl 1 and 2 (lvl 2s are founder)
 
@@ -14,7 +14,7 @@ contract AtlantisDistribution is ERC20, Ownable {
     // fund wallet for regular shareholders
     address payable public fund_wallet;
 
-    constructor(string memory name, string memory symbol, address payable _fund_wallet) ERC20(name, symbol) {
+    constructor(string memory name, string memory symbol, address payable _fund_wallet) DistributorERC20(name, symbol) {
         totalLevelSupply[0] = 300000000 * 10**uint(decimals());
         totalLevelSupply[1] = 0;
         totalLevelSupply[2] = 0;
@@ -47,21 +47,21 @@ contract AtlantisDistribution is ERC20, Ownable {
 
     function changeLvl(address account, uint8 newLvl) external onlyOwner {
         relaxBalance(account);
-        uint8 oldLvl = level[account];
-        level[account] = newLvl;
+        uint8 oldLvl = levels[account];
+        levels[account] = newLvl;
         totalLevelSupply[oldLvl] = totalLevelSupply[oldLvl].sub(_balances[account]);
         totalLevelSupply[newLvl] = totalLevelSupply[newLvl].add(_balances[account]);
-        balanceCoefficient[account] = currentBC[newLvl];
+        balanceCoefficients[account] = currentBC[newLvl];
     }
 
     function mintToNRS(address account, uint256 amount) external onlyOwner {
         // at least one address with positive balance must have lvl 1 and 2, if not code does not crash but some tokens will be locked
-        require(level[account] != 0, "account is a regular shareholder");
+        require(levels[account] != 0, "account is a regular shareholder");
         relaxBalance(account);
         _balances[account] = _balances[account].add(amount);
         _balances[fund_wallet] = _balances[fund_wallet].add(amount.mul(2));
 
-        uint8 other = 3 - level[account];
+        uint8 other = 3 - levels[account];
         currentBC[other] = currentBC[other].mul((totalLevelSupply[other].add(amount)));
         currentBC[other] = currentBC[other].div(totalLevelSupply[other]);
 
@@ -74,7 +74,7 @@ contract AtlantisDistribution is ERC20, Ownable {
 
     function mintToRS(address account, uint256 amount) external onlyOwner {
         // at least one address with positive balance must have lvl 1 and 2, if not code does not crash but some tokens will be locked
-        require(level[account] == 0, "account is not a regular shareholder");
+        require(levels[account] == 0, "account is not a regular shareholder");
         _balances[account] = _balances[account].add(amount);
         totalLevelSupply[0].add(amount);
 

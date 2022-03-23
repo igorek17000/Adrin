@@ -135,10 +135,10 @@ describe("AtlantisDistribution", async () => {
 
     it("initialize levels correctly", async () => {
         expect(
-          await AtlantisDistribution.level(coreSigner1Addr)
+          await AtlantisDistribution.levelOf(coreSigner1Addr)
         ).to.equal(core)
         expect(
-          await AtlantisDistribution.level(founder1Addr)
+          await AtlantisDistribution.levelOf(founder1Addr)
         ).to.equal(founder)
     })
 
@@ -229,7 +229,7 @@ describe("AtlantisDistribution", async () => {
           core
         )
 		expect(
-			await AtlantisDistribution.level(signer3Addr)
+			await AtlantisDistribution.levelOf(signer3Addr)
 		).to.equal(core)
 
 		await AtlantisDistribution.mint(
