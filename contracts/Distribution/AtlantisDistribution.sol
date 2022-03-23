@@ -33,8 +33,9 @@ contract AtlantisTokenWithDistribution is DistributorERC20, Ownable {
             amount > 0,
             "Distribution: zero amount"
         );
+        require(totalLevelSupply[1] > 0, "Distribution: total supply of VIP level one is zero");
+        require(totalLevelSupply[2] > 0, "Distribution: total supply of VIP level two is zero");
 
-        // at least one address with positive balance must have lvl 1 and 2, if not code does not crash but some tokens will be locked
         if (totalLevelSupply[2] != 0) {
             currentBC[2] = currentBC[2].mul((totalLevelSupply[2].add(amount.div(4))));
             currentBC[2] = currentBC[2].div(totalLevelSupply[2]);
@@ -43,7 +44,7 @@ contract AtlantisTokenWithDistribution is DistributorERC20, Ownable {
             currentBC[1] = currentBC[1].mul((totalLevelSupply[1].add(amount.div(4))));
             currentBC[1] = currentBC[1].div(totalLevelSupply[1]);
         }
-        // found wallet must have level 0
+      
         _balances[fund_wallet] = _balances[fund_wallet].add(amount.div(2));
         totalLevelSupply[0] = totalLevelSupply[0].add(amount.div(2));
         totalLevelSupply[1] = totalLevelSupply[1].add(amount.div(4));
@@ -55,6 +56,11 @@ contract AtlantisTokenWithDistribution is DistributorERC20, Ownable {
         require(
             account != address(0),
             "Distribution: can not change zero address level"
+        );
+
+        require(
+            account != fund_wallet,
+            "Distribution: can not change fund address level"
         );
 
         require(
@@ -71,8 +77,9 @@ contract AtlantisTokenWithDistribution is DistributorERC20, Ownable {
     }
 
     function _mintForVIP(address account, uint256 amount) internal {
-        // at least one address with positive balance must have lvl 1 and 2, if not code does not crash but some tokens will be locked
         require(levels[account] != 0, "Distribution: account is not VIP");
+        require(totalLevelSupply[1] > 0, "Distribution: total supply of VIP level one is zero");
+        require(totalLevelSupply[2] > 0, "Distribution: total supply of VIP level two is zero");
 
         relaxBalance(account);
         _balances[account] = _balances[account].add(amount);
@@ -90,8 +97,9 @@ contract AtlantisTokenWithDistribution is DistributorERC20, Ownable {
     }
 
     function _mintForNormal(address account, uint256 amount) internal {
-        // at least one address with positive balance must have lvl 1 and 2, if not code does not crash but some tokens will be locked
         require(levels[account] == 0, "Distribution: account is not normal");
+        require(totalLevelSupply[1] > 0, "Distribution: total supply of VIP level one is zero");
+        require(totalLevelSupply[2] > 0, "Distribution: total supply of VIP level two is zero");
 
         _balances[account] = _balances[account].add(amount);
         totalLevelSupply[0].add(amount);

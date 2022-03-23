@@ -3,7 +3,6 @@ import { ethers } from "hardhat"
 import { Signer, BigNumber, BigNumberish } from "ethers"
 import { Address } from "hardhat-deploy/dist/types";
 import { solidity, MockProvider } from "ethereum-waffle"
-
 import { AtlantisPayToken } from "../src/types/AtlantisPayToken"
 import { AtlantisPayToken__factory } from "../src/types/factories/AtlantisPayToken__factory"
 
@@ -15,7 +14,7 @@ describe("atlantisPaytoken", async () => {
     // let tokenCurrency = "NullCurrency"
 
     let masterMinter: Signer
-    let foundWallet: Signer
+    let fundWallet: Signer
     let signer1: Signer
     let signer2: Signer
     let signer3: Signer
@@ -26,7 +25,7 @@ describe("atlantisPaytoken", async () => {
     
 
     let masterMinterAddr: Address
-    let foundWalletAddr: Address
+    let fundWalletAddr: Address
     let signer1Addr: Address
     let signer2Addr: Address
     let signer3Addr: Address
@@ -47,9 +46,9 @@ describe("atlantisPaytoken", async () => {
     let atlantisPaytoken: AtlantisPayToken
 
     beforeEach(async () => {
-        [masterMinter, foundWallet, signer1, signer2, signer3, coreSigner1, coreSigner2, founderSigner1, founderSigner2] = await ethers.getSigners()
+        [masterMinter, fundWallet, signer1, signer2, signer3, coreSigner1, coreSigner2, founderSigner1, founderSigner2] = await ethers.getSigners()
         masterMinterAddr = await masterMinter.getAddress()
-        foundWalletAddr = await foundWallet.getAddress()
+        fundWalletAddr = await fundWallet.getAddress()
         signer1Addr = await signer1.getAddress()
         signer2Addr = await signer2.getAddress()
         signer3Addr = await signer3.getAddress()
@@ -121,7 +120,7 @@ describe("atlantisPaytoken", async () => {
         const AtlantisPayToken = await AtlantisPayTokenFactory.deploy(
             tokenName,
             tokenSymbol,
-            foundWalletAddr,
+            fundWalletAddr,
             signer1Addr,
             _initialSupply
         )
@@ -137,7 +136,7 @@ describe("atlantisPaytoken", async () => {
           0
         )
 		expect(await atlantisPaytoken.totalSupply()).to.equal(_initialSupply);
-        expect(await atlantisPaytoken.fund_wallet()).to.equal(await foundWallet.getAddress());
+        expect(await atlantisPaytoken.fund_wallet()).to.equal(await fundWallet.getAddress());
     })
 
     it("initialize levels correctly", async () => {
@@ -192,6 +191,15 @@ describe("atlantisPaytoken", async () => {
         ).to.be.revertedWith("PayToken: caller is not the masterMinter")
     })
 
+	it("can't change level of fund wallet", async () => {
+        await expect(
+            atlantisPaytoken.changeLevel(
+				fundWalletAddr,
+                founder
+            )
+        ).to.be.revertedWith("Distribution: can not change fund address level")
+    })
+
 	const epsilon = BigNumber.from(10);
 
     it("owner can mint new tokens and new tokens distribution is correct", async () => {
@@ -220,7 +228,7 @@ describe("atlantisPaytoken", async () => {
         ).to.equal(oneUnit.mul(200).add(oneUnit.mul(250 * 20).div(45)))
 
         expect(
-            await atlantisPaytoken.balanceOf(foundWalletAddr)
+            await atlantisPaytoken.balanceOf(fundWalletAddr)
         ).to.equal(oneUnit.mul(500))
 
 		expect(await atlantisPaytoken.totalSupply()).to.equal(_totalSupply.add(oneUnit.mul(1000)));
@@ -252,7 +260,7 @@ describe("atlantisPaytoken", async () => {
         )
         
         expect(
-            await atlantisPaytoken.balanceOf(foundWalletAddr)
+            await atlantisPaytoken.balanceOf(fundWalletAddr)
         ).to.equal(oneUnit.mul(1500))
 
         expect(
@@ -349,7 +357,7 @@ describe("atlantisPaytoken", async () => {
             oneUnit.mul(30)
         );
         expect(
-            await atlantisPaytoken.balanceOf(foundWalletAddr)
+            await atlantisPaytoken.balanceOf(fundWalletAddr)
         ).to.equal(oneUnit.mul(60))
 
 		expect(
