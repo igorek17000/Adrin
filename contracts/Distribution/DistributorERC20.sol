@@ -30,7 +30,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
  * functions have been added to mitigate the well-known issues around setting
  * allowances. See {IERC20-approve}.
  */
-contract ERC20 is Context, IERC20 {
+contract DistributorERC20 is Context, IERC20 {
     using SafeMath for uint256;
 
     mapping (address => uint256) internal _balances;
@@ -40,14 +40,14 @@ contract ERC20 is Context, IERC20 {
     uint256 internal _totalSupply;
 
     // lvl of address could be 0,1,2 as explained before
-    mapping (address => uint8) public level;
+    mapping (address => uint8) internal levels;
 
     uint8 constant size = 3;
     // total balance of each lvl
     uint256[size] internal totalLevelSupply;
     
     // BC is balance coefficient of last time an address relaxed
-    mapping (address => uint256) internal balanceCoefficient;
+    mapping (address => uint256) internal balanceCoefficients;
 
     // currentBC is current balance coefficient for every lvl
     uint256[size] internal currentBC;
@@ -112,11 +112,18 @@ contract ERC20 is Context, IERC20 {
      * @dev See {IERC20-balanceOf}.
      */
     function balanceOf(address account) public view virtual override returns (uint256) {
-        if (level[account] == 0)
+        if (levels[account] == 0)
             return _balances[account];
         return (
-            currentBC[level[account]].mul(_balances[account])).div(balanceCoefficient[account]
+            currentBC[levels[account]].mul(_balances[account])).div(balanceCoefficients[account]
         );
+    }
+
+    /**
+     * @dev See {IERC20-balanceOf}.
+     */
+    function levelOf(address account) public view virtual returns (uint8) {
+        return levels[account];
     }
 
     /**
@@ -322,15 +329,15 @@ contract ERC20 is Context, IERC20 {
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual { 
         relaxBalance(from);
         relaxBalance(to);
-        totalLevelSupply[level[from]] = totalLevelSupply[level[from]].sub(amount);
-        totalLevelSupply[level[to]] = totalLevelSupply[level[to]].add(amount);
+        totalLevelSupply[levels[from]] = totalLevelSupply[levels[from]].sub(amount);
+        totalLevelSupply[levels[to]] = totalLevelSupply[levels[to]].add(amount);
     }
 
     
     function relaxBalance(address account) internal {
-        if (level[account] == 0)
+        if (levels[account] == 0)
             return;
-        _balances[account] = (currentBC[level[account]].mul(_balances[account])).div(balanceCoefficient[account]);
-        balanceCoefficient[account] = currentBC[level[account]];
+        _balances[account] = (currentBC[levels[account]].mul(_balances[account])).div(balanceCoefficients[account]);
+        balanceCoefficients[account] = currentBC[levels[account]];
     }
 }
