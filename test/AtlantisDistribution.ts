@@ -62,25 +62,33 @@ describe("atlantisPaytoken", async () => {
     })
 
     const initializeLevels = async () => {
-        await atlantisPaytoken.changeLevel(
-          founder1Addr,
-          founder
-        )
+		expect(
+			await atlantisPaytoken.changeLevel(
+				founder1Addr,
+				founder
+			)
+		).to.emit(atlantisPaytoken, "ChangeLevel");
 
-		await atlantisPaytoken.changeLevel(
-			founder2Addr,
-			founder
-		  )
-        
-        await atlantisPaytoken.changeLevel(
-          coreSigner1Addr,
-          core
-        )
+		expect(
+			await atlantisPaytoken.changeLevel(
+				founder2Addr,
+				founder
+			)
+		).to.emit(atlantisPaytoken, "ChangeLevel");
 
-		await atlantisPaytoken.changeLevel(
-			coreSigner2Addr,
-			core
-		  )
+		expect(
+			await atlantisPaytoken.changeLevel(
+				coreSigner1Addr,
+				core
+			)
+		).to.emit(atlantisPaytoken, "ChangeLevel");
+
+		expect(
+			await atlantisPaytoken.changeLevel(
+				coreSigner2Addr,
+				core
+			)
+		).to.emit(atlantisPaytoken, "ChangeLevel");
     }
 
 	const initializeBalances = async () => {

@@ -14,6 +14,8 @@ contract AtlantisTokenWithDistribution is DistributorERC20, Ownable {
     // fund wallet for regular shareholders
     address payable public fund_wallet;
 
+    event ChangeLevel(address indexed account, uint256 level);
+
     constructor(string memory name, string memory symbol, address payable _fund_wallet, uint256 _initialSupply) DistributorERC20(name, symbol) {
         totalLevelSupply[0] = _initialSupply;
         totalLevelSupply[1] = 0;
@@ -74,6 +76,8 @@ contract AtlantisTokenWithDistribution is DistributorERC20, Ownable {
         totalLevelSupply[oldLvl] = totalLevelSupply[oldLvl].sub(_balances[account]);
         totalLevelSupply[newLvl] = totalLevelSupply[newLvl].add(_balances[account]);
         balanceCoefficients[account] = currentBC[newLvl];
+
+        emit ChangeLevel(account, newLvl);
     }
 
     function _mintForVIP(address account, uint256 amount) internal {

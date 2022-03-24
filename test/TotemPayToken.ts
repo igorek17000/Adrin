@@ -19,13 +19,16 @@ describe("AtlantisPayToken", async () => {
     let signer2: Signer
     let signer3: Signer
     let signer4: Signer
-    
+    let vip1: Signer
+    let vip2: Signer
 
     let masterMinterAddr: Address
     let signer1Addr: Address
     let signer2Addr: Address
     let signer3Addr: Address
     let signer4Addr: Address
+    let vip1Addr: Address
+    let vip2Addr: Address
 
     const oneUnit = BigNumber.from(10).pow(18);
     const _initialSupply =  oneUnit.mul(300).mul(1000000);
@@ -36,15 +39,38 @@ describe("AtlantisPayToken", async () => {
     let atlantisPayToken: AtlantisPayToken
 
     beforeEach(async () => {
-        [masterMinter, signer1, signer2, signer3, signer4] = await ethers.getSigners()
+        [masterMinter, signer1, signer2, signer3, signer4, vip1, vip2] = await ethers.getSigners()
         masterMinterAddr = await masterMinter.getAddress()
         signer1Addr = await signer1.getAddress()
         signer2Addr = await signer2.getAddress()
         signer3Addr = await signer3.getAddress()
         signer4Addr = await signer4.getAddress()
+        vip1Addr = await vip1.getAddress()
+        vip2Addr = await vip2.getAddress()
         
         atlantisPayToken = await deployAtlantisPayToken()
+        await setVIPaccounts()
     })
+
+    const setVIPaccounts = async () => {
+        let atlantisPayTokenMM = atlantisPayToken.connect(masterMinter)
+        expect(
+            await atlantisPayTokenMM.changeLevel(vip1Addr, 1)
+        ).to.emit(atlantisPayTokenMM, "ChangeLevel")
+        expect(
+            await atlantisPayTokenMM.changeLevel(vip2Addr, 2)
+        ).to.emit(atlantisPayTokenMM, "ChangeLevel")
+
+        await atlantisPayToken.transfer(
+            vip1Addr,
+            oneHundred.mul(2)
+        )
+
+        await atlantisPayToken.transfer(
+            vip2Addr,
+            oneHundred.mul(3)
+        )
+    }
 
     const deployAtlantisPayToken = async (_signer?: Signer): Promise<AtlantisPayToken> => {
         const atlantisPayTokenFactory = new AtlantisPayToken__factory(_signer || signer1)
@@ -234,16 +260,7 @@ describe("AtlantisPayToken", async () => {
     // })
 
     it("transferWithReferralCode", async () => {
-        let atlantisPayTokenMM = atlantisPayToken.connect(masterMinter)
-
-        await atlantisPayTokenMM.configureMinter(
-            signer3Addr,
-            oneHundred.mul(4)
-        )
-
-        let atlantisPayTokenS3 = atlantisPayToken.connect(signer3)
-
-        await atlantisPayTokenS3.mintForNormal(
+        await atlantisPayToken.transfer(
             signer4Addr,
             oneHundred.mul(2)
         )
@@ -261,16 +278,7 @@ describe("AtlantisPayToken", async () => {
     })
 
     it("transferFromWithReferralCode", async () => {
-        let atlantisPayTokenMM = atlantisPayToken.connect(masterMinter)
-
-        await atlantisPayTokenMM.configureMinter(
-            signer3Addr,
-            oneHundred.mul(4)
-        )
-
-        let atlantisPayTokenS3 = atlantisPayToken.connect(signer3)
-
-        await atlantisPayTokenS3.mintForNormal(
+        await atlantisPayToken.transfer(
             signer4Addr,
             oneHundred.mul(2)
         )
@@ -290,5 +298,41 @@ describe("AtlantisPayToken", async () => {
             )
         ).to.emit(atlantisPayToken, "TransferWithReferralCode")
 
+    })
+
+    it("mint for VIP", async () => {
+        let atlantisPayTokenMM = atlantisPayToken.connect(masterMinter)
+
+        await atlantisPayTokenMM.configureMinter(
+            signer3Addr,
+            oneHundred.mul(4)
+        )
+
+        let atlantisPayTokenS3 = atlantisPayToken.connect(signer3)
+
+        expect(
+            await atlantisPayTokenS3.mintForVIP(
+                vip1Addr,
+                oneHundred.mul(2)
+            )
+        ).to.emit(atlantisPayTokenS3, "MintForVIP")
+    })
+
+    it("mint for normal", async () => {
+        let atlantisPayTokenMM = atlantisPayToken.connect(masterMinter)
+
+        await atlantisPayTokenMM.configureMinter(
+            signer3Addr,
+            oneHundred.mul(4)
+        )
+
+        let atlantisPayTokenS3 = atlantisPayToken.connect(signer3)
+
+        expect(
+            await atlantisPayTokenS3.mintForNormal(
+                signer4Addr,
+                oneHundred.mul(2)
+            )
+        ).to.emit(atlantisPayTokenS3, "MintForNormal")
     })
 })

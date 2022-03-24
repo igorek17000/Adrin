@@ -16,6 +16,8 @@ contract AtlantisPayToken is AtlantisTokenWithDistribution {
 
     event Mint(address indexed minter, address indexed to, uint256 amount);
     event MintAndDistribute(address indexed minter, uint256 amount);
+    event MintForVIP(address indexed minter, address indexed to, uint256 amount);
+    event MintForNormal(address indexed minter, address indexed to, uint256 amount);
     event Burn(address indexed burner, uint256 amount);
     event MinterConfigured(address indexed minter, uint256 minterAllowedAmount);
     event MinterRemoved(address indexed oldMinter);
@@ -80,6 +82,7 @@ contract AtlantisPayToken is AtlantisTokenWithDistribution {
         returns (bool)
     {
         _mintForVIP(account, amount);
+        emit MintForVIP(_msgSender(), account, amount);
         return true;
     }
 
@@ -89,6 +92,7 @@ contract AtlantisPayToken is AtlantisTokenWithDistribution {
         returns (bool)
     {
         _mintForNormal(account, amount);
+        emit MintForNormal(_msgSender(), account, amount);
         return true;
     }
 
