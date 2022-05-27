@@ -1,4 +1,8 @@
 
 {
-    "funding_address" : "0xf92abF80266fD710Ec7a8A644915B458abe34160"
+    "token_name" : "ABR token",
+    "token_symbol" : "ABR",
+    "token_decimal" : "18",
+    "token_total_supply" : "10000",
+    "token_owner" : "0x72b23bD4Ab1AC741fe03D3e395C541B6B971d574"
 }

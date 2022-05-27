@@ -2,10 +2,10 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Context.sol";
-
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Roles.sol";
 
-contract Operator is Context {
+contract Governable is Context, Ownable {
     using Roles for Roles.Role;
 
     event OperatorAdded(address indexed account);
@@ -31,13 +31,9 @@ contract Operator is Context {
         return _operators.has(account);
     }
 
-    function addOperator(address account) public onlyOperator {
-        _addOperator(account);
-    }
-
-    function renounceOperator() public {
-        _removeOperator(_msgSender());
-    }
+    // function renounceOperator() public {
+    //     _removeOperator(_msgSender());
+    // }
 
     function _addOperator(address account) internal {
         _operators.add(account);

@@ -7,21 +7,25 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { deploy } = deployments
     const { deployer } = await getNamedAccounts()
 
-    const tokenName = "AtlantisPayToken"
-    const tokenSymbol = "ATPT"
-    const fundingAddress = config.get("funding_address")
+    const tokenName = config.get("token_name")
+    const tokenSymbol = config.get("token_symbol")
+    const tokenDecimal = config.get("token_decimal")
+    const tokenTotalSupply = config.get("token_total_supply")
+    const tokenOwner = config.get("token_owner")
 
-    await deploy("AtlantisDistribution", {
+    await deploy("ERC20Token", {
         from: deployer,
         log: true,
         skipIfAlreadyDeployed: true,
         args: [
             tokenName,
             tokenSymbol,
-            fundingAddress
+            tokenDecimal,
+            tokenTotalSupply,
+            tokenOwner
         ],
     })
 }
 
 export default func
-export const tags = ["AtlantisDistribution"]
+export const tags = ["Token", "Final"]

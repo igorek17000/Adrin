@@ -1,7 +1,7 @@
 {
-  "name": "atlantis_internet_city_token_distribution",
+  "name": "ba_project",
   "version": "1.0.0",
-  "description": "Atlantis internet city token distribution smart contracts",
+  "description": "",
   "directories": {
     "test": "test"
   },
@@ -18,7 +18,7 @@
     "yarn": "^1.22.18"
   },
   "devDependencies": {
-    "@nomiclabs/hardhat-ethers": "^2.0.1",
+    "@nomiclabs/hardhat-ethers": "^2.0.5",
     "@nomiclabs/hardhat-etherscan": "^2.1.6",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@tenderly/hardhat-tenderly": "^1.0.7",
@@ -30,7 +30,7 @@
     "chai": "^4.3.6",
     "copyfiles": "^2.4.1",
     "ethereum-waffle": "^4.0.0-alpha.0",
-    "ethers": "^5.6.0",
+    "ethers": "^5.6.4",
     "hardhat": "^2.9.1",
     "hardhat-abi-exporter": "^2.3.0",
     "hardhat-contract-sizer": "^2.1.1",

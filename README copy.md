@@ -7,6 +7,7 @@ The flow charts provided below are generated with mermaid.js package and can be 
 
 
 #### How to run
+yarn install
 
 -   Deploy to testnet (goerli in the below example)
 

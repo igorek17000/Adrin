@@ -3,13 +3,28 @@
     "inputs": [
       {
         "internalType": "string",
-        "name": "NAME",
+        "name": "name",
         "type": "string"
       },
       {
         "internalType": "string",
-        "name": "SYMBOL",
+        "name": "symbol",
         "type": "string"
+      },
+      {
+        "internalType": "uint8",
+        "name": "decimals",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "initialSupply",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -38,25 +53,6 @@
       }
     ],
     "name": "Approval",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "previousOwner",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "OwnershipTransferred",
     "type": "event"
   },
   {
@@ -227,26 +223,6 @@
   },
   {
     "inputs": [],
-    "name": "owner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "renounceOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "symbol",
     "outputs": [
       {
@@ -321,19 +297,6 @@
         "type": "bool"
       }
     ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "transferOwnership",
-    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   }
