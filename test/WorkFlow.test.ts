@@ -33,6 +33,7 @@ describe("workFlow", async () => {
     let factory: Factory
     let agreement: Agreement
     let stableCoin: ERC20Token
+    let agreementToken: ERC20Token
 
     const tokenName: string = config.get("agreement_token_name")
     const tokenSymbol: string = config.get("agreement_token_symbol")
@@ -81,12 +82,12 @@ describe("workFlow", async () => {
             )
         ).to.emit(factory, "AgreementCreated").withArgs(futureAddress)
         agreement = await ethers.getContractAt("Agreement", futureAddress)
+        agreementToken = await ethers.getContractAt("ERC20Token", await agreement.token())
     })
 
     it("initialize contract correctly", async () => {
         expect(await agreement.owner()).to.equal(agreementDeployerAddr);
     })
-
 
     const OwnerAddOperator = async (address: Address) => {
         await expect(
@@ -95,7 +96,33 @@ describe("workFlow", async () => {
             )
         ).to.emit(factory, "OperatorAdded")
     }
+      
+    const getCurrentTimestamp = async () => {
+        let blockNum = await ethers.provider.getBlockNumber()
+        return await (await ethers.provider.getBlock(blockNum)).timestamp
+    }
+
+    const unlockTokens = async () => {
+        let agreementV1 = agreement.connect(voter1)
+        await expect(
+            agreementV1.castVote()
+        ).to.emit(agreement, "VoteCasted")
+        let agreementV2 = agreement.connect(voter2)
+        await expect(
+            agreementV2.castVote()
+        ).to.emit(agreement, "VoteCasted").to.emit(agreement, "Unlocked")
+    }
     
+    const moveTime = async (days: number) => {
+        await ethers.provider.send("evm_increaseTime", [days * 24 * 60 * 60])
+    }
+
+    const chargeContract = async (value: number) => {
+        let stableCoinD = stableCoin.connect(factoryDeployer)
+        await stableCoinD.transfer(agreement.address, value)
+    } 
+
+    // vote and unlock tests
     it("non voter accounts can't vote", async () => {
         let agreementS1 = agreement.connect(signer1)
         await expect(
@@ -107,12 +134,7 @@ describe("workFlow", async () => {
             agreementD1.castVote()
         ).to.be.revertedWith("OperatorRole: caller does not have the Operator role")
     })
-     
-    const getCurrentTimestamp = async () => {
-        let blockNum = await ethers.provider.getBlockNumber()
-        return await (await ethers.provider.getBlock(blockNum)).timestamp
-
-    }
+   
     it("voting process works ok and voters can't vote twice", async () => {
         let agreementV1 = agreement.connect(voter1)
         expect(
@@ -144,17 +166,6 @@ describe("workFlow", async () => {
             await agreementV1.votes()
         ).to.be.equal(1)
     })
-
-    const unlockTokens = async () => {
-        let agreementV1 = agreement.connect(voter1)
-        await expect(
-            agreementV1.castVote()
-        ).to.emit(agreement, "VoteCasted")
-        let agreementV2 = agreement.connect(voter2)
-        await expect(
-            agreementV2.castVote()
-        ).to.emit(agreement, "VoteCasted").to.emit(agreement, "Unlocked")
-    }
 
     it("unlocking process works ok", async () => {
         //cast one vote
@@ -204,6 +215,7 @@ describe("workFlow", async () => {
         // test if deployer is voter or not
     })
 
+    // set profit rate tests
     it("non owner accounts can't set profit rate", async () => {
         let agreementS1 = agreement.connect(signer1)
         await expect(
@@ -229,6 +241,7 @@ describe("workFlow", async () => {
         ).to.be.equal(10001)
     })
 
+    // increase deadline tests
     it("non owner accounts can't increase deadline", async () => {
         let agreementS1 = agreement.connect(signer1)
         await expect(
@@ -243,428 +256,98 @@ describe("workFlow", async () => {
         ).to.be.revertedWith("Agreement: project is not finished yet")
     }) 
 
-    // it("owner can increase deadline", async () => {
-    //     let agreementD = agreement.connect(agreementDeployer)
-    //     await expect(
-    //         agreementD.setProfitRate(10001)
-    //     ).to.emit(agreement, "ProfitRateChanged").withArgs(10001)
+    it("owner can increase deadline", async () => {
+        await unlockTokens()
+        let agreementD = agreement.connect(agreementDeployer)
+        let oldDeadline = await agreement.deadline()
+        await expect(
+            agreementD.increaseDeadline(10)
+        ).to.emit(agreement, "DeadlineChanged")
+        expect(
+            await agreement.deadline()
+        ).to.be.equal(oldDeadline.add(BigNumber.from(10).mul(86400)))
+    })
+
+    // discharge tests
+    it("non owner accounts can't discharge", async () => {
+        let agreementS1 = agreement.connect(signer1)
+        await expect(
+            agreementS1.discharge(voter3Addr)
+        ).to.be.revertedWith("Ownable: caller is not the owner")
+    })
+
+    it("can't discharge before unlocking", async () => {
+        let agreementD = agreement.connect(agreementDeployer)
+        await expect(
+            agreementD.discharge(voter3Addr)
+        ).to.be.revertedWith("Agreement: project is not finished yet")
+    })
+
+    it("can't discharge before deadline pass", async () => {
+        await unlockTokens()
+        let agreementD = agreement.connect(agreementDeployer)
+        await expect(
+            agreementD.discharge(voter3Addr)
+        ).to.be.revertedWith("Agreement: project deadline is not passed yet")
+    })
+
+    it("discharge works correctly", async () => {
+        await unlockTokens()
+        await chargeContract(20000)
+        await moveTime(agreementMaxDelay)
+
+        let agreementD = agreement.connect(agreementDeployer)
+        await agreementD.discharge(signer3Addr)
         
-    //     expect(
-    //         await agreement.profitRate()
-    //     ).to.be.equal(10001)
-    // })
-
-    // it("", async () => {
-    //     expect(
-    //       await atlantisPaytoken.levelOf(coreSigner1Addr)
-    //     ).to.equal(core)
-    // })
-    // const initializeLevels = async () => {
-	// 	expect(
-	// 		await atlantisPaytoken.changeLevel(
-	// 			founder1Addr,
-	// 			founder
-	// 		)
-	// 	).to.emit(atlantisPaytoken, "ChangeLevel");
-
-	// 	expect(
-	// 		await atlantisPaytoken.changeLevel(
-	// 			founder2Addr,
-	// 			founder
-	// 		)
-	// 	).to.emit(atlantisPaytoken, "ChangeLevel");
-
-	// 	expect(
-	// 		await atlantisPaytoken.changeLevel(
-	// 			coreSigner1Addr,
-	// 			core
-	// 		)
-	// 	).to.emit(atlantisPaytoken, "ChangeLevel");
-
-	// 	expect(
-	// 		await atlantisPaytoken.changeLevel(
-	// 			coreSigner2Addr,
-	// 			core
-	// 		)
-	// 	).to.emit(atlantisPaytoken, "ChangeLevel");
-    // }
-
-	// const initializeBalances = async () => {
-    //     await atlantisPaytoken.transfer(
-	// 		signer2Addr,
-	// 		oneUnit.mul(100)
-	// 	  )
-  
-	// 	  await atlantisPaytoken.transfer(
-	// 		signer3Addr,
-	// 		oneUnit.mul(200)
-	// 	  )
-  
-	// 	  await atlantisPaytoken.transfer(
-	// 		coreSigner1Addr,
-	// 		oneUnit.mul(250)
-	// 	  )
-
-	// 	  await atlantisPaytoken.transfer(
-	// 		coreSigner2Addr,
-	// 		oneUnit.mul(200)
-	// 	  )
-  
-	// 	  await atlantisPaytoken.transfer(
-	// 		founder1Addr,
-	// 		oneUnit.mul(400)
-	// 	  )
-
-	// 	  await atlantisPaytoken.transfer(
-	// 		founder2Addr,
-	// 		oneUnit.mul(500)
-	// 	  )
-    // }
-   
-  
-
-    // it("initialize balances correctly", async () => {
-    //     expect(
-    //         await atlantisPaytoken.balanceOf(signer2Addr)
-    //     ).to.equal(oneUnit.mul(100))
-    //     expect(
-    //         await atlantisPaytoken.balanceOf(signer3Addr)
-    //     ).to.equal(oneUnit.mul(200))
-    //     expect(
-    //         await atlantisPaytoken.balanceOf(coreSigner1Addr)
-    //     ).to.equal(oneUnit.mul(250))
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(coreSigner2Addr)
-    //     ).to.equal(oneUnit.mul(200))
-    //     expect(
-    //         await atlantisPaytoken.balanceOf(founder1Addr)
-    //     ).to.equal(oneUnit.mul(400))
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(founder2Addr)
-    //     ).to.equal(oneUnit.mul(500))
-	// 	expect(await atlantisPaytoken.totalSupply()).to.equal(_totalSupply);
-    // })
-
-	// it("non owner accounts can't change other account's level", async () => {
-    //     let atlantisPaytokenS2 = atlantisPaytoken.connect(signer2)
-    //     await expect(
-    //         atlantisPaytokenS2.changeLevel(
-	// 			signer3Addr,
-    //             founder
-    //         )
-    //     ).to.be.revertedWith("PayToken: caller is not the masterMinter")
-    // })
-
-	// it("can't change level of fund wallet", async () => {
-    //     await expect(
-    //         atlantisPaytoken.changeLevel(
-	// 			fundWalletAddr,
-    //             founder
-    //         )
-    //     ).to.be.revertedWith("Distribution: can not change fund address level")
-    // })
-
-	// const epsilon = BigNumber.from(10);
-
-    // it("owner can mint new tokens and new tokens distribution is correct", async () => {
-    //     await atlantisPaytoken.configureMinter(
-    //         signer1Addr,
-    //         oneUnit.mul(1000)
-    //     )
-    //     await atlantisPaytoken.mintAndDistribute(
-    //         oneUnit.mul(1000)
-    //     )
-
-    //     expect(
-    //         await atlantisPaytoken.balanceOf(founder1Addr)
-    //     ).to.equal(oneUnit.mul(400).add(oneUnit.mul(250 * 4).div(9)))
-
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(founder2Addr)
-    //     ).to.equal(oneUnit.mul(500).add(oneUnit.mul(250 * 5).div(9)))
-
-    //     expect(
-    //         await atlantisPaytoken.balanceOf(coreSigner1Addr)
-    //     ).to.equal(oneUnit.mul(250).add(oneUnit.mul(250 * 25).div(45)))
-
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(coreSigner2Addr)
-    //     ).to.equal(oneUnit.mul(200).add(oneUnit.mul(250 * 20).div(45)))
-
-    //     expect(
-    //         await atlantisPaytoken.balanceOf(fundWalletAddr)
-    //     ).to.equal(oneUnit.mul(500))
-
-	// 	expect(await atlantisPaytoken.totalSupply()).to.equal(_totalSupply.add(oneUnit.mul(1000)));
-    // })
-
-	// it("mint, changing level from 0 to level 1, mint again works correctly", async () => {
-    //     await atlantisPaytoken.configureMinter(
-    //         signer1Addr,
-    //         oneUnit.mul(3000)
-    //     )
-    //     await atlantisPaytoken.mintAndDistribute(
-    //         oneUnit.mul(1000)
-    //     )
-
-	// 	let oldBalanceCore1 =  await atlantisPaytoken.balanceOf(coreSigner1Addr);
-	// 	let oldBalanceCore2 = await atlantisPaytoken.balanceOf(coreSigner2Addr);
-	// 	let oldBalanceCore3 = await atlantisPaytoken.balanceOf(signer3Addr);
-	// 	let sumOldBalances = oldBalanceCore1.add(oldBalanceCore2).add(oldBalanceCore3);
-    //     await atlantisPaytoken.changeLevel(
-    //       signer3Addr,
-    //       core
-    //     )
-	// 	expect(
-	// 		await atlantisPaytoken.levelOf(signer3Addr)
-	// 	).to.equal(core)
-
-	// 	await atlantisPaytoken.mintAndDistribute(
-    //         oneUnit.mul(2000)
-    //     )
-        
-    //     expect(
-    //         await atlantisPaytoken.balanceOf(fundWalletAddr)
-    //     ).to.equal(oneUnit.mul(1500))
-
-    //     expect(
-    //         await atlantisPaytoken.balanceOf(coreSigner1Addr)
-    //     ).to.be.closeTo(oldBalanceCore1.add(oneUnit.mul(500).mul(oldBalanceCore1).div(sumOldBalances)), epsilon)
-
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(coreSigner2Addr)
-    //     ).to.be.closeTo(oldBalanceCore2.add(oneUnit.mul(500).mul(oldBalanceCore2).div(sumOldBalances)), epsilon)
-
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(signer3Addr)
-    //     ).to.be.closeTo(oldBalanceCore3.add(oneUnit.mul(500).mul(oldBalanceCore3).div(sumOldBalances)), epsilon)
-
-
-	// 	expect(await atlantisPaytoken.totalSupply()).to.equal(_totalSupply.add(oneUnit.mul(3000)));
-
-    // })
-
-	// it("transfer between account and then mint works correctly", async () => {
-	// 	let atlantisPaytokenS2 = atlantisPaytoken.connect(signer2)
-    //     await atlantisPaytokenS2.transfer(
-	// 		founder1Addr,
-    //         oneUnit.mul(20)
-    //     )
-
-	// 	let atlantisPaytokenF2 = atlantisPaytoken.connect(founderSigner2)
-	// 	await atlantisPaytokenF2.transfer(
-	// 		coreSigner1Addr,
-    //         oneUnit.mul(50)
-    //     )
-
-	// 	let atlantisPaytokenC2 = atlantisPaytoken.connect(coreSigner2)
-	// 	await atlantisPaytokenC2.transfer(
-	// 		coreSigner1Addr,
-    //         oneUnit.mul(30)
-    //     )
-
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(signer2Addr)
-    //     ).to.be.closeTo(oneUnit.mul(80), epsilon)
-
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(founder1Addr)
-    //     ).to.be.closeTo(oneUnit.mul(420), epsilon)
-
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(founder2Addr)
-    //     ).to.be.closeTo(oneUnit.mul(450), epsilon)
-
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(coreSigner2Addr)
-    //     ).to.be.closeTo(oneUnit.mul(170), epsilon)
-
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(coreSigner1Addr)
-    //     ).to.be.closeTo(oneUnit.mul(330), epsilon)
-
-    //     await atlantisPaytoken.configureMinter(
-    //         signer1Addr,
-    //         oneUnit.mul(300)
-    //     )
-
-	// 	await atlantisPaytoken.mintAndDistribute(
-    //         oneUnit.mul(300)
-    //     )
-		
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(founder1Addr)
-    //     ).to.be.closeTo(oneUnit.mul(420).add(oneUnit.mul(420 * 75).div(870)), epsilon)
-
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(founder2Addr)
-    //     ).to.be.closeTo(oneUnit.mul(450).add(oneUnit.mul(450 * 75).div(870)), epsilon)
-
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(coreSigner1Addr)
-    //     ).to.be.closeTo(oneUnit.mul(330).add(oneUnit.mul(330 * 75).div(500)), epsilon)
-
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(coreSigner2Addr)
-    //     ).to.be.closeTo(oneUnit.mul(170).add(oneUnit.mul(170 * 75).div(500)), epsilon)
-
-	// 	expect(await atlantisPaytoken.totalSupply()).to.equal(_totalSupply.add(oneUnit.mul(300)));
-    // })
-
-	// it("mint to non regular shareholder works correctly", async () => {
-    //     await atlantisPaytoken.configureMinter(
-    //         signer1Addr,
-    //         oneUnit.mul(30)
-    //     )
-	// 	await atlantisPaytoken.mintForVIP(
-	// 		coreSigner2Addr,
-    //         oneUnit.mul(30)
-    //     );
-    //     expect(
-    //         await atlantisPaytoken.balanceOf(fundWalletAddr)
-    //     ).to.equal(oneUnit.mul(60))
-
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(founder1Addr)
-    //     ).to.be.closeTo(oneUnit.mul(400).add(oneUnit.mul(30 * 4).div(9)), epsilon)
-
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(founder2Addr)
-    //     ).to.be.closeTo(oneUnit.mul(500).add(oneUnit.mul(30 * 5).div(9)), epsilon)
-
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(coreSigner2Addr)
-    //     ).to.be.closeTo(oneUnit.mul(230), epsilon)
-		
-	// 	expect(await atlantisPaytoken.totalSupply()).to.equal(_totalSupply.add(oneUnit.mul(120)));
-	// })
-
-	// it("mint to regular shareholder works correctly", async () => {
-    //     await atlantisPaytoken.configureMinter(
-    //         signer1Addr,
-    //         oneUnit.mul(30)
-    //     )
-
-	// 	await atlantisPaytoken.mintForNormal(
-	// 		signer2Addr,
-    //         oneUnit.mul(30)
-    //     );
-		    
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(signer2Addr)
-    //     ).to.be.closeTo(oneUnit.mul(130), epsilon)
-
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(founder1Addr)
-    //     ).to.be.closeTo(oneUnit.mul(400).add(oneUnit.mul(15 * 4).div(9)), epsilon)
-
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(founder2Addr)
-    //     ).to.be.closeTo(oneUnit.mul(500).add(oneUnit.mul(15 * 5).div(9)), epsilon)
-
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(coreSigner1Addr)
-    //     ).to.be.closeTo(oneUnit.mul(250).add(oneUnit.mul(15 * 25).div(45)), epsilon)
-
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(coreSigner2Addr)
-    //     ).to.be.closeTo(oneUnit.mul(200).add(oneUnit.mul(15 * 20).div(45)), epsilon)
-
-	// 	expect(await atlantisPaytoken.totalSupply()).to.equal(_totalSupply.add(oneUnit.mul(60)));
-
-	// })
-
-	// it("mint to regular shareholder doesn't work for non regular shareholders", async () => {
-    //     await atlantisPaytoken.configureMinter(
-    //         signer1Addr,
-    //         oneUnit.mul(6000)
-    //     ) 
-
-	// 	await expect ( atlantisPaytoken.mintForNormal(
-	// 		founder1Addr,
-    //         oneUnit.mul(2000)
-    //     )).to.be.revertedWith("Distribution: account is not normal");
-
-	// 	await expect ( atlantisPaytoken.mintForNormal(
-	// 		coreSigner1Addr,
-    //         oneUnit.mul(2000)
-    //     )).to.be.revertedWith("Distribution: account is not normal");
-
-	// 	await atlantisPaytoken.changeLevel(
-	// 		signer3Addr,
-	// 		core
-	// 	)
-
-	// 	await expect ( atlantisPaytoken.mintForNormal(
-	// 		signer3Addr,
-    //         oneUnit.mul(2000)
-    //     )).to.be.revertedWith("Distribution: account is not normal");
-
-	// })
-
-	// it("mint to non regular shareholder doesn't work for regular shareholders", async () => {
-    //     await atlantisPaytoken.configureMinter(
-    //         signer1Addr,
-    //         oneUnit.mul(4000)
-    //     )
-
-	// 	await expect ( atlantisPaytoken.mintForVIP(
-	// 		signer2Addr,
-    //         oneUnit.mul(2000)
-    //     )).to.be.revertedWith("Distribution: account is not VIP");
-
-	// 	await atlantisPaytoken.changeLevel(
-	// 		founder1Addr,
-	// 		user
-	// 	)
-
-	// 	await expect ( atlantisPaytoken.mintForVIP(
-	// 		founder1Addr,
-    //         oneUnit.mul(2000)
-    //     )).to.be.revertedWith("Distribution: account is not VIP");
-
-	// })
-
-	// it("burn and mint again works correctly", async () => {
-    //     await atlantisPaytoken.configureMinter(
-    //         founder1Addr,
-    //         oneUnit.mul(100)
-    //     )
-
-    //     expect(
-    //         await atlantisPaytoken.isMinter(founder1Addr)
-    //     ).to.equal(true)
-
-    //     let atlantisPaytokenF1 = atlantisPaytoken.connect(founderSigner1)
-
-	// 	await atlantisPaytokenF1.burn(
-    //         oneUnit.mul(100)
-    //     )
-
-
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(founder1Addr)
-    //     ).to.be.closeTo(oneUnit.mul(300), epsilon)
-
-    //     await atlantisPaytoken.configureMinter(
-    //         signer1Addr,
-    //         oneUnit.mul(300)
-    //     )
-
-	// 	await atlantisPaytoken.mintAndDistribute(
-    //         oneUnit.mul(300)
-    //     )
-
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(founder1Addr)
-    //     ).to.be.closeTo(oneUnit.mul(300).add(oneUnit.mul(75 * 3).div(8)), epsilon)
-
-	// 	expect(
-    //         await atlantisPaytoken.balanceOf(founder2Addr)
-    //     ).to.be.closeTo(oneUnit.mul(500).add(oneUnit.mul(75 * 5).div(8)), epsilon)
-
-	// 	expect(await atlantisPaytoken.totalSupply()).to.equal(_totalSupply.add(oneUnit.mul(200)));
-	// })
-	
+        expect(
+            await stableCoin.balanceOf(signer3Addr)
+        ).to.be.equal(20000)
+    })
+
+    // receive profit tests
+    it("can't receive profit before unlocking", async () => {
+        let agreementS1 = agreement.connect(signer1)
+        await expect(
+            agreementS1.receiveProfit(voter3Addr)
+        ).to.be.revertedWith("Agreement: project is not finished yet")
+    })
+
+    it("can't receive profit after deadline pass", async () => {
+        await unlockTokens()
+        await moveTime(agreementMaxDelay + 1)
+
+        let agreementD = agreement.connect(agreementDeployer)
+        await expect(
+            agreementD.receiveProfit(voter3Addr)
+        ).to.be.revertedWith("Agreement: project deadline is passed")
+    })
+
+    it("receive profit work correctly", async () => {
+        let agreementTokenD = agreementToken.connect(agreementDeployer)
+        await agreementTokenD.transfer(signer1Addr, 100)
+        await agreementTokenD.transfer(signer2Addr, 200)
+        let agreementTokenS2 = agreementToken.connect(signer2)
+        await agreementTokenS2.transfer(signer1Addr, 20)
+
+        await unlockTokens()
+        await chargeContract(20000)
+
+        let agreementS2 = agreement.connect(signer2)
+        agreementTokenS2.approve(agreement.address, 180)
+        await agreementS2.receiveProfit(signer2Addr)
+        expect(await stableCoin.balanceOf(signer2Addr)).to.be.equal(180)
+
+        // change profit rate
+        let agreementD = agreement.connect(agreementDeployer)
+        await expect(
+            agreementD.setProfitRate(12000)
+        ).to.emit(agreement, "ProfitRateChanged")
+
+        let agreementS1 = agreement.connect(signer1)
+        let agreementTokenS1 = agreementToken.connect(signer1)
+        agreementTokenS1.approve(agreement.address, 120)
+        await agreementS1.receiveProfit(signer1Addr)
+        expect(await stableCoin.balanceOf(signer1Addr)).to.be.equal(144)
+    })
 })
 

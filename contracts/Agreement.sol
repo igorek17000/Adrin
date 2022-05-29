@@ -73,7 +73,7 @@ contract Agreement is Governable {
         }
     }
 
-    function recieveProfit(address _to) public {
+    function receiveProfit(address _to) public {
         require(locked == false, "Agreement: project is not finished yet");
         require(block.timestamp <= deadline, "Agreement: project deadline is passed");
 
@@ -95,6 +95,7 @@ contract Agreement is Governable {
     }
 
     function discharge (address _to) public onlyOwner () {
+        require(locked == false, "Agreement: project is not finished yet");
         require(block.timestamp > deadline, "Agreement: project deadline is not passed yet");
         uint256 balance = stableCoin.balanceOf(address(this));
         stableCoin.transfer(_to, balance);
