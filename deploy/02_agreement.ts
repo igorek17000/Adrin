@@ -24,4 +24,4 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 }
 
 export default func
-export const tags = ["Agreement"]
+func.tags = ["Agreement"]

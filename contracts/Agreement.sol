@@ -10,7 +10,10 @@ contract Agreement is Governable {
     using SafeMath for uint256;
 
     event TokenCreated(address tokenAddress);
+    event VoteCasted(address voter);
     event Unlocked();
+    event ProfitRateChanged(uint256 newRate);
+    event DeadlineChanged(uint256 newDeadline);
 
     ERC20Token public token;
     IERC20 public stableCoin;
@@ -34,8 +37,8 @@ contract Agreement is Governable {
         uint256 _maxDelay,
         address _stableCoin
     ) {
-        require(_quorum > 0, "number of needed witnesses must be greater than zero");
-        require(_quorum <= _operators.length, "quorum must be less than or equal to number of operators");
+        require(_quorum > 0, "Agreement: number of needed witnesses must be greater than zero");
+        require(_quorum <= _operators.length, "Agreement: quorum must be less than or equal to number of operators");
 
         token = new ERC20Token(
             name,
@@ -56,11 +59,13 @@ contract Agreement is Governable {
     }
 
     function castVote() public onlyOperator {
-        require(hasVoted[msg.sender] == false, "already voted");
-        require(locked == true, "tokens are already unlocked");
+        require(hasVoted[msg.sender] == false, "Agreement: already voted");
+        require(locked == true, "Agreement: tokens are already unlocked");
 
+        emit VoteCasted(msg.sender);
         hasVoted[msg.sender] = true;
         votes++;
+
         if (votes >= quorum) {
             locked = false;
             deadline = block.timestamp + (maxDelay * 1 days);
@@ -69,8 +74,8 @@ contract Agreement is Governable {
     }
 
     function recieveProfit(address _to) public {
-        require(locked == false, "project is not finished yet");
-        require(block.timestamp <= deadline, "project deadline is passed");
+        require(locked == false, "Agreement: project is not finished yet");
+        require(block.timestamp <= deadline, "Agreement: project deadline is passed");
 
         uint256 balance = token.balanceOf(msg.sender);
         token.transferFrom(msg.sender, address(this), balance);
@@ -78,17 +83,19 @@ contract Agreement is Governable {
     }
 
     function setProfitRate (uint256 rate) public onlyOwner () {
-        require(rate >= 10000, "rate / 10000 must be at least equal to one");
+        require(rate >= 10000, "Agreement: rate / 10000 must be at least equal to one");
         profitRate = rate;
+        emit ProfitRateChanged(rate);
     }
 
     function increaseDeadline (uint256 delayTimeInDays) public onlyOwner () {
-        require(locked == false, "project is not finished yet");
+        require(locked == false, "Agreement: project is not finished yet");
         deadline += (delayTimeInDays * 1 days);
+        emit DeadlineChanged(deadline);
     }
 
     function discharge (address _to) public onlyOwner () {
-        require(block.timestamp > deadline, "project deadline is not passed yet");
+        require(block.timestamp > deadline, "Agreement: project deadline is not passed yet");
         uint256 balance = stableCoin.balanceOf(address(this));
         stableCoin.transfer(_to, balance);
     }

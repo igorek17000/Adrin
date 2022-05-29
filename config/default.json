@@ -4,5 +4,19 @@
     "token_symbol" : "ABR",
     "token_decimal" : "18",
     "token_total_supply" : "10000",
-    "token_owner" : "0x72b23bD4Ab1AC741fe03D3e395C541B6B971d574"
+    "token_owner" : "0x72b23bD4Ab1AC741fe03D3e395C541B6B971d574",
+    
+    "agreement_token_name" : "project1 token",
+    "agreement_token_symbol" : "PR1",
+    "agreement_token_decimal" : "18",
+    "agreement_token_total_supply" : "10000000",
+    "agreement_quorum" : "3",
+    "agreement_voters" : ["0x94DCbbEe27fDb765D1Ef47E6aF3B782988afd7De","0xA57670c98FC01c8Ef5340B447C404F567d422b79","0x941435f35726aBE1F7F8d52f5cdaa5a76449de23", "0x4279FbCBa43b10e3161896FFC696C83bE9451611"],
+    "agreement_max_delay" : "10",
+    
+    "stable_token_name" : "STB token",
+    "stable_token_symbol" : "STB",
+    "stable_token_decimal" : "18",
+    "stable_token_total_supply" : "100000000",
+    "stable_token_owner" : "0x4279FbCBa43b10e3161896FFC696C83bE9451611"
 }
