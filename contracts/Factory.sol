@@ -10,22 +10,22 @@ contract Factory is Governable {
     function deployNewAgreement(
         string calldata name,
         string calldata symbol,
-        uint8 decimals,
         uint256 initialSupply,
         uint256 quorum,
         address[] memory voters,
         uint256 maxDelay,
+        uint256 minLockDuration,
         address stableCoinAddress
     ) public onlyOperator returns (address)  {
         Agreement t = new Agreement(
             name,
             symbol,
-            decimals,
             initialSupply,
             msg.sender,
             quorum,
             voters,
             maxDelay,
+            minLockDuration,
             stableCoinAddress
         );
         emit AgreementCreated(address(t));

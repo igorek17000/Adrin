@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/utils/Context.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "../utils/Context.sol";
+import "../utils/Ownable.sol";
 import "./Roles.sol";
 
 contract Governable is Context, Ownable {

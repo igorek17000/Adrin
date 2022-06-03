@@ -17,7 +17,24 @@ interface IAgreement {
     event Unlocked();
 
     /**
-     * @dev operators vote for the completion of the project
+     * @dev Emitted when a voter vote with argument equal to voter address
+     */
+
+    event VoteCasted(address voter);
+
+    /**
+     * @dev Emitted when owner change profit rate with argument equal to new rate
+     */
+
+    event ProfitRateChanged(uint256 newRate);
+
+     /**
+     * @dev Emitted when owner increase deadline with argument equal to new deadline
+     */ 
+    event DeadlineChanged(uint256 newDeadline);
+
+    /**
+     * @dev operators vote for the completion of the project when voting time starts
      * if number of voters exceed the quorum, recieve profit will be unlocked
      */
     function castVote() external;

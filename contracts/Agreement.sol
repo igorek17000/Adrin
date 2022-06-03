@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.9;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "./utils/SafeMath.sol";
+import "./utils/Ownable.sol";
 import "./ERC20Token.sol";
 import "./Role/Governable.sol";
+import "./security/ReentrancyGuard.sol";
 
-contract Agreement is Governable {
+contract Agreement is Governable, ReentrancyGuard {
     using SafeMath for uint256;
 
     event TokenCreated(address tokenAddress);
@@ -21,7 +22,8 @@ contract Agreement is Governable {
     uint256 public votes;
     uint256 public deadline;
     uint256 public maxDelay;
-    uint256 public profitRate = 10000;
+    uint256 public votingStartDate;
+    uint256 public profitRate = 1000000;
     bool public locked = true;
     mapping(address => bool) public hasVoted;
 
@@ -29,12 +31,12 @@ contract Agreement is Governable {
     constructor(
         string memory name,
         string memory symbol,
-        uint8 decimals,
         uint256 initialSupply,
         address deployer,
         uint256 _quorum,
         address[] memory _operators,
         uint256 _maxDelay,
+        uint256 _minLockDuration,
         address _stableCoin
     ) {
         require(_quorum > 0, "Agreement: number of needed witnesses must be greater than zero");
@@ -43,7 +45,7 @@ contract Agreement is Governable {
         token = new ERC20Token(
             name,
             symbol,
-            decimals,
+            18,
             initialSupply,
             deployer
         );
@@ -54,6 +56,8 @@ contract Agreement is Governable {
         for (uint i = 0; i < _operators.length; i++)
             _addOperator(_operators[i]);
 
+        votingStartDate = block.timestamp.add(_minLockDuration.mul(1 days));
+
         transferOwnership(deployer);
         emit TokenCreated(address(token));
     }
@@ -61,6 +65,7 @@ contract Agreement is Governable {
     function castVote() public onlyOperator {
         require(hasVoted[msg.sender] == false, "Agreement: already voted");
         require(locked == true, "Agreement: tokens are already unlocked");
+        require(block.timestamp >= votingStartDate, "Agreement: voting is not started yet");
 
         emit VoteCasted(msg.sender);
         hasVoted[msg.sender] = true;
@@ -68,29 +73,29 @@ contract Agreement is Governable {
 
         if (votes >= quorum) {
             locked = false;
-            deadline = block.timestamp + (maxDelay * 1 days);
+            deadline = block.timestamp.add(maxDelay.mul(1 days));
             emit Unlocked();
         }
     }
 
-    function receiveProfit(address _to) public {
+    function receiveProfit(address _to) public nonReentrant {
         require(locked == false, "Agreement: project is not finished yet");
         require(block.timestamp <= deadline, "Agreement: project deadline is passed");
 
         uint256 balance = token.balanceOf(msg.sender);
         token.transferFrom(msg.sender, address(this), balance);
-        stableCoin.transfer(_to, balance.mul(profitRate).div(10000));
+        stableCoin.transfer(_to, balance.mul(profitRate).div(1000000));
     }
 
     function setProfitRate (uint256 rate) public onlyOwner () {
-        require(rate >= 10000, "Agreement: rate / 10000 must be at least equal to one");
+        require(rate >= 1000000, "Agreement: rate / 1000000 must be at least equal to one");
         profitRate = rate;
         emit ProfitRateChanged(rate);
     }
 
     function increaseDeadline (uint256 delayTimeInDays) public onlyOwner () {
         require(locked == false, "Agreement: project is not finished yet");
-        deadline += (delayTimeInDays * 1 days);
+        deadline = deadline.add(delayTimeInDays.mul(1 days));
         emit DeadlineChanged(deadline);
     }
 

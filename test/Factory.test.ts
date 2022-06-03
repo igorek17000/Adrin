@@ -26,12 +26,11 @@ describe("factory", async () => {
 
     const tokenName: string = config.get("agreement_token_name")
     const tokenSymbol: string = config.get("agreement_token_symbol")
-    const tokenDecimal: string = config.get("agreement_token_decimal")
     const tokenTotalSupply: string = config.get("agreement_token_total_supply")
     const agreementQuorum: string = config.get("agreement_quorum")
     const agreementVoters: string[] = config.get("agreement_voters")
     const agreementMaxDelay: string = config.get("agreement_max_delay")
-
+    const agreementMinLockDuration: string = config.get("agreement_min_lock_duration")
 
     beforeEach(async () => {
         [deployer, signer1, signer2, signer3] = await ethers.getSigners()
@@ -108,14 +107,35 @@ describe("factory", async () => {
             factoryS1.deployNewAgreement(
                 tokenName,
                 tokenSymbol,
-                tokenDecimal,
                 tokenTotalSupply,
                 agreementQuorum,
                 agreementVoters,
                 agreementMaxDelay,
+                agreementMinLockDuration,
                 stableCoin.address
             )
         ).to.be.revertedWith("OperatorRole: caller does not have the Operator role")
+    })
+
+    it("owner has operator access", async () => {
+        let factoryD = factory.connect(deployer)
+        let futureAddress;
+        futureAddress = ethers.utils.getContractAddress({
+            from: factory.address,
+            nonce: 1
+        })
+        await expect(
+            factoryD.deployNewAgreement(
+                tokenName,
+                tokenSymbol,
+                tokenTotalSupply,
+                agreementQuorum,
+                agreementVoters,
+                agreementMaxDelay,
+                agreementMinLockDuration,
+                stableCoin.address
+            )
+        ).to.emit(factory, "AgreementCreated").withArgs(futureAddress)
     })
     
     it("operator accounts can deploy new agreement", async () => {
@@ -132,15 +152,14 @@ describe("factory", async () => {
             factoryS1.deployNewAgreement(
                 tokenName,
                 tokenSymbol,
-                tokenDecimal,
                 tokenTotalSupply,
                 agreementQuorum,
                 agreementVoters,
                 agreementMaxDelay,
+                agreementMinLockDuration,
                 stableCoin.address
             )
         ).to.emit(factory, "AgreementCreated").withArgs(futureAddress)
     })
-
 })
 

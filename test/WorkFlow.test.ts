@@ -37,11 +37,11 @@ describe("workFlow", async () => {
 
     const tokenName: string = config.get("agreement_token_name")
     const tokenSymbol: string = config.get("agreement_token_symbol")
-    const tokenDecimal: string = config.get("agreement_token_decimal")
     const tokenTotalSupply: string = config.get("agreement_token_total_supply")
     const agreementQuorum: string = '2'
     let agreementVoters: string[] = []
     const agreementMaxDelay: number = config.get("agreement_max_delay")
+    const agreementMinLockDuration: number = config.get("agreement_min_lock_duration")
 
 
     beforeEach(async () => {
@@ -73,11 +73,11 @@ describe("workFlow", async () => {
             factoryS1.deployNewAgreement(
                 tokenName,
                 tokenSymbol,
-                tokenDecimal,
                 tokenTotalSupply,
                 agreementQuorum,
                 agreementVoters,
                 agreementMaxDelay,
+                agreementMinLockDuration,
                 stableCoin.address
             )
         ).to.emit(factory, "AgreementCreated").withArgs(futureAddress)
@@ -103,6 +103,7 @@ describe("workFlow", async () => {
     }
 
     const unlockTokens = async () => {
+        await moveTime(agreementMinLockDuration)
         let agreementV1 = agreement.connect(voter1)
         await expect(
             agreementV1.castVote()
@@ -123,7 +124,7 @@ describe("workFlow", async () => {
     } 
 
     // vote and unlock tests
-    it("non voter accounts can't vote", async () => {
+    it("non voter accounts and owner can't vote", async () => {
         let agreementS1 = agreement.connect(signer1)
         await expect(
             agreementS1.castVote()
@@ -133,9 +134,15 @@ describe("workFlow", async () => {
         await expect(
             agreementD1.castVote()
         ).to.be.revertedWith("OperatorRole: caller does not have the Operator role")
+
+        let agreementD2 = agreement.connect(agreementDeployer)
+        await expect(
+            agreementD2.castVote()
+        ).to.be.revertedWith("OperatorRole: caller does not have the Operator role")
     })
    
     it("voting process works ok and voters can't vote twice", async () => {
+        await moveTime(agreementMinLockDuration)
         let agreementV1 = agreement.connect(voter1)
         expect(
             await agreementV1.hasVoted(voter1Addr)
@@ -167,7 +174,19 @@ describe("workFlow", async () => {
         ).to.be.equal(1)
     })
 
+    it("voters can't vote before voting start time", async () => {
+        await moveTime(agreementMinLockDuration - 1)
+        let agreementV1 = agreement.connect(voter1)
+        await expect(
+            agreementV1.castVote()
+        ).to.be.revertedWith("Agreement: voting is not started yet")
+
+        await moveTime(1)
+        await agreementV1.castVote()
+    })
+
     it("unlocking process works ok", async () => {
+        await moveTime(agreementMinLockDuration)
         //cast one vote
         expect(
             await agreement.locked()
@@ -212,7 +231,6 @@ describe("workFlow", async () => {
             await agreement.locked()
         ).to.be.equal(false)
 
-        // test if deployer is voter or not
     })
 
     // set profit rate tests
@@ -223,22 +241,22 @@ describe("workFlow", async () => {
         ).to.be.revertedWith("Ownable: caller is not the owner")
     })
 
-    it("can't set profit rate less than 10000", async () => {
+    it("can't set profit rate less than 1000000", async () => {
         let agreementD = agreement.connect(agreementDeployer)
         await expect(
             agreementD.setProfitRate(999)
-        ).to.be.revertedWith("Agreement: rate / 10000 must be at least equal to one")
+        ).to.be.revertedWith("Agreement: rate / 1000000 must be at least equal to one")
     })
 
     it("owner can change profit rate", async () => {
         let agreementD = agreement.connect(agreementDeployer)
         await expect(
-            agreementD.setProfitRate(10001)
-        ).to.emit(agreement, "ProfitRateChanged").withArgs(10001)
+            agreementD.setProfitRate(1000001)
+        ).to.emit(agreement, "ProfitRateChanged").withArgs(1000001)
         
         expect(
             await agreement.profitRate()
-        ).to.be.equal(10001)
+        ).to.be.equal(1000001)
     })
 
     // increase deadline tests
@@ -340,7 +358,7 @@ describe("workFlow", async () => {
         // change profit rate
         let agreementD = agreement.connect(agreementDeployer)
         await expect(
-            agreementD.setProfitRate(12000)
+            agreementD.setProfitRate(1200000)
         ).to.emit(agreement, "ProfitRateChanged")
 
         let agreementS1 = agreement.connect(signer1)
@@ -348,6 +366,23 @@ describe("workFlow", async () => {
         agreementTokenS1.approve(agreement.address, 120)
         await agreementS1.receiveProfit(signer1Addr)
         expect(await stableCoin.balanceOf(signer1Addr)).to.be.equal(144)
+    })
+
+    it("can receive profit again if deadline increase", async () => {
+        await unlockTokens()
+        await moveTime(Number(agreementMaxDelay) + 1)
+
+        let agreementS2 = agreement.connect(signer2)
+        await expect(
+            agreementS2.receiveProfit(voter3Addr)
+        ).to.be.revertedWith("Agreement: project deadline is passed")
+        
+        let agreementD = agreement.connect(agreementDeployer)
+        await expect(
+            agreementD.increaseDeadline(2)
+        ).to.emit(agreement, "DeadlineChanged")
+
+        await  agreementS2.receiveProfit(voter3Addr)
     })
 })
 
