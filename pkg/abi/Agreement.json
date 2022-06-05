@@ -12,11 +12,6 @@
         "type": "string"
       },
       {
-        "internalType": "uint8",
-        "name": "decimals",
-        "type": "uint8"
-      },
-      {
         "internalType": "uint256",
         "name": "initialSupply",
         "type": "uint256"
@@ -42,6 +37,11 @@
         "type": "uint256"
       },
       {
+        "internalType": "uint256",
+        "name": "_minLockDuration",
+        "type": "uint256"
+      },
+      {
         "internalType": "address",
         "name": "_stableCoin",
         "type": "address"
@@ -49,6 +49,19 @@
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newDeadline",
+        "type": "uint256"
+      }
+    ],
+    "name": "DeadlineChanged",
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -100,6 +113,19 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "uint256",
+        "name": "newRate",
+        "type": "uint256"
+      }
+    ],
+    "name": "ProfitRateChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "internalType": "address",
         "name": "tokenAddress",
         "type": "address"
@@ -112,6 +138,19 @@
     "anonymous": false,
     "inputs": [],
     "name": "Unlocked",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "voter",
+        "type": "address"
+      }
+    ],
+    "name": "VoteCasted",
     "type": "event"
   },
   {
@@ -271,7 +310,7 @@
         "type": "address"
       }
     ],
-    "name": "recieveProfit",
+    "name": "receiveProfit",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -338,6 +377,19 @@
   {
     "inputs": [],
     "name": "votes",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "votingStartDate",
     "outputs": [
       {
         "internalType": "uint256",

@@ -83,11 +83,6 @@
         "type": "string"
       },
       {
-        "internalType": "uint8",
-        "name": "decimals",
-        "type": "uint8"
-      },
-      {
         "internalType": "uint256",
         "name": "initialSupply",
         "type": "uint256"
@@ -105,6 +100,11 @@
       {
         "internalType": "uint256",
         "name": "maxDelay",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minLockDuration",
         "type": "uint256"
       },
       {

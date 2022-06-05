@@ -1,6 +1,4 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (utils/math/SafeMath.sol)
-
 pragma solidity ^0.8.0;
 
 // CAUTION
