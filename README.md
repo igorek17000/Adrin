@@ -3,9 +3,6 @@
 
 This repository consists of smart contracts required for ABR projct
 
-The flow charts provided below are generated with mermaid.js package and can be used to understand the flows of the contracts:
-
-
 #### How to run
 - installation 
 ```
@@ -24,6 +21,12 @@ PROJECT_ID="infura id" PRIVATE_KEY"private key to deploy the contracts from" yar
 
 You can find more information in the `scripts-info` section in the `package.json` file.
 
+
+#### How to test
+- run test files
+```
+NODE_ENV=test npx hardhat test
+```
 
 #### How to deploy
 
