@@ -1,3 +1,4 @@
+
 # ABR Project and Token Smart Contracts
 
 This repository consists of smart contracts required for ABR projct
@@ -62,6 +63,3 @@ then run
 ```
 ETHERSCAN_KEY=<your-api-key> npx hardhat verify --network bsc_testnet <contract-address> "constructor's-first-arg" "constructor's-second-arg" "constructor's-third-arg" "constructor's-forth-arg"
 ```
-
-
-
