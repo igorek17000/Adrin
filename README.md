@@ -1,3 +1,4 @@
+
 # ABR Project and Token Smart Contracts
 
 This repository consists of smart contracts required for ABR projct
@@ -6,13 +7,16 @@ The flow charts provided below are generated with mermaid.js package and can be 
 
 
 #### How to run
+- installation 
+```
 yarn install
+```
 
 -   Deploy to testnet (goerli in the below example)
 
 ```
 yarn
-PROJECT_ID="infura id" PRIVATE_KEY"priavete key to deploy the contracts from" yarn deploy:goerli
+PROJECT_ID="infura id" PRIVATE_KEY"private key to deploy the contracts from" yarn deploy:goerli
 ```
 
 -   Deploy to local (requires ganache to run on local)
@@ -59,6 +63,3 @@ then run
 ```
 ETHERSCAN_KEY=<your-api-key> npx hardhat verify --network bsc_testnet <contract-address> "constructor's-first-arg" "constructor's-second-arg" "constructor's-third-arg" "constructor's-forth-arg"
 ```
-
-
-
