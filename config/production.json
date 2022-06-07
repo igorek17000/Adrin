@@ -1,0 +1,22 @@
+{
+    "token_name" : "ABR token",
+    "token_symbol" : "ABR",
+    "token_decimal" : "18",
+    "token_total_supply" : "10000",
+    "token_owner" : "0xe17dc3bc085866514a7a65e3300fbc083241880f",
+    
+    "agreement_token_name" : "project1 token",
+    "agreement_token_symbol" : "PR1",
+    "agreement_token_decimal" : "18",
+    "agreement_token_total_supply" : "10000000",
+    "agreement_quorum" : "3",
+    "agreement_voters" : ["0x94DCbbEe27fDb765D1Ef47E6aF3B782988afd7De","0xA57670c98FC01c8Ef5340B447C404F567d422b79","0x941435f35726aBE1F7F8d52f5cdaa5a76449de23", "0xb71b214cb885500844365e95cd9942c7276e7fd8", "0xb121d2a4c48a86302e0fb2ada5dffa10f81016da", "0xd7d4587b5524b32e24f1ee7581d543c775df27b5", "0x47be1c4e46bc61c7c3ed1fa20b4690bb9a9b6f52", "0xc3afab24f6d81a081c365eb92e7e07ce09f748c7", "0xaa25aa7a19f9c426e07dee59b12f944f4d9f1dd3", "0x8c27aebe83eda9c1f265f48e0abf910f03ce342b", "0x9975664c70d18e3b2c03c04bfbfbfce587cbe850"],
+    "agreement_max_delay" : "10",
+    "agreement_min_lock_duration" : "20",
+    
+    "stable_token_name" : "STB token",
+    "stable_token_symbol" : "STB",
+    "stable_token_decimal" : "18",
+    "stable_token_total_supply" : "100000000",
+    "stable_token_owner" : "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+}
