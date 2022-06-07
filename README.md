@@ -6,13 +6,16 @@ The flow charts provided below are generated with mermaid.js package and can be 
 
 
 #### How to run
+- installation 
+```
 yarn install
+```
 
 -   Deploy to testnet (goerli in the below example)
 
 ```
 yarn
-PROJECT_ID="infura id" PRIVATE_KEY"priavete key to deploy the contracts from" yarn deploy:goerli
+PROJECT_ID="infura id" PRIVATE_KEY"private key to deploy the contracts from" yarn deploy:goerli
 ```
 
 -   Deploy to local (requires ganache to run on local)
